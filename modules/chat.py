@@ -106,7 +106,7 @@ def chat(irc, event):
         msg = '%s' % (response)
 
         if random.random() <= 0.25:
-            msg = event.source + delim + ' ' + msg
+            return irc.reply(msg)
         if random.random() <= 0.05:
             return
 

@@ -9,7 +9,7 @@ import threading
 import html
 
 class Message(object):
-    def __init__(self, source, target, message):
+    def __init__(self, source, target, message, cli=None):
         self.source = source
         self.target = target
         self.message = message
@@ -17,6 +17,9 @@ class Message(object):
         self.args = list(filter(None, message.split(" ")[1:]))
         self.text = " ".join(self.args)
         self.replyto = target  # IRC compat
+        
+        self.source_obj = cli.get_user(self.source)
+        self.source_tag = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(self.source, self.source_obj.get_display_name())
     
     def __repr__(self):
         return "<Message from:{0} to:{1} - {2}>".format(self.source, self.target, self.message)
@@ -124,8 +127,7 @@ class Dors(object):
 
 
     def on_message(self, roomchunk):
-        
-        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
+        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], cli=self.client)
         source, target, message = (roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
         print(event)
         # Commands
@@ -173,14 +175,16 @@ class Dors(object):
                     self.message(target, "Error in {0} module: {1}".format(stuff['module'], tb))
 
 
-    def message(self, target, message):
+    def message(self, target, message, p_html=False):
         """ Compatibility layer for porting IRC modules """
-        if "\002" in message or "\003" in message:
+        print(message)
+        if "\002" in message or "\003" in message or "\x1f" in message or "\x1d" in message or p_html:
             # transform from IRC to HTML and send..
-            message = html.escape(message)
+            if not p_html:
+                message = html.escape(message)
             message = re.sub('\002(.*?)\002', '<b>\\1</b>', message)
             message = re.sub('\x1f(.*?)\x1f', '<u>\\1</u>', message)
-            message = re.sub('\x1f(.*?)\x1d', '<i>\\1</i>', message)
+            message = re.sub('\x1d(.*?)\x1d', '<i>\\1</i>', message)
             def replcolor(m):
                 return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(2))
             message = re.sub('\003(\d{1,2})(.*?)\003', replcolor, message)
@@ -188,7 +192,7 @@ class Dors(object):
         self.client.api.send_message(target, message)
     
     def html_message(self, target, message):
-        stripped = re.sub('<[^<]+?>', '', message)
+        stripped = re.sub('<[^<]+?>', '', html.unescape(message))
 
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
                                            content={'formatted_body': message, 'format': 'org.matrix.custom.html',
@@ -216,7 +220,7 @@ class Dors(object):
                 if attr == 'say' or attr == 'msg':
                     return (lambda msg: self._bot.message(event.target, msg))
                 elif attr == 'reply':
-                    return (lambda msg: self._bot.message(event.target, event.source + ': ' + msg))
+                    return (lambda msg: self._bot.message(event.target, event.source_tag + ': ' + html.escape(msg), p_html=True))
                 
                 return getattr(self._bot, attr)
 
