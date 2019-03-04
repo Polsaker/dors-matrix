@@ -107,7 +107,7 @@ def f_time(self, ev):
     TZ = tz.upper()
     if len(tz) > 30: return
 
-    if (TZ == 'UTC') or (TZ == 'Z'):
+    if TZ == 'Z':
         msg = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
         self.message(ev.replyto, msg)
     elif r_local.match(tz): # thanks to Mark Shoulsdon (clsn)
