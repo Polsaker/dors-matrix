@@ -102,7 +102,7 @@ TimeZones.update(TZ3)
 @commandHook(['time', 't'], help=".time UTC")
 def f_time(self, ev):
     """Returns the current time."""
-    tz = ev.args[0] if ev.args else 'GMT'
+    tz = ev.args[0] if ev.args else 'UTC'
 
     TZ = tz.upper()
     if len(tz) > 30: return
