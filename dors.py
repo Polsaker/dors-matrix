@@ -130,6 +130,9 @@ class Dors(object):
 
 
     def on_message(self, roomchunk):
+        # if it's a notice we ignore it
+        if roomchunk['content']['msgtype'] == 'm.notice':
+            return
         event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], cli=self.client)
         source, target, message = (roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
         print(event)
@@ -192,14 +195,15 @@ class Dors(object):
                 return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(2))
             message = re.sub('\003(\d{1,2})(.*?)\003', replcolor, message)
             return self.html_message(target, message)
-        self.client.api.send_message(target, message)
+        self.client.api.send_message_event(room_id=target, event_type='m.room.message',
+                                           content={'body': message, 'msgtype': 'm.notice'})
     
     def html_message(self, target, message):
         stripped = re.sub('<[^<]+?>', '', html.unescape(message))
 
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
                                            content={'formatted_body': message, 'format': 'org.matrix.custom.html',
-                                                    'body': stripped, 'msgtype': 'm.text'})
+                                                    'body': stripped, 'msgtype': 'm.notice'})
 
     def isadmin(self, user):
         if user not in config.admins:
