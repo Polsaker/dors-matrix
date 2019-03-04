@@ -199,6 +199,13 @@ class Dors(object):
             return False
         return True
     
+    def getPlugin(self, plugin):
+        try:
+            return self.plugins[plugin]
+        except KeyError:
+            return False
+
+    
     def wrapper(self, event):
         """ we wrap ourselves before passing to modules """
         class BotWrapper(object):
