@@ -56,26 +56,8 @@ def chat(irc, event):
     msgi = text.strip()
     msgo = str()
 
-    if channel.startswith('+#') or channel.startswith('@#'):
-        return
-    elif channel.startswith('#'):
-        pm = False
-        time.sleep(random.randint(1, 5))
-        msgo = mycb[channel].say(msgi)
-    elif not channel.startswith('#'):
-        ## in a PM and not prepended with jenni's name
-        pm = True
-        if text.startswith('.') or (hasattr(config, 'prefix') and text.startswith(config.prefix)):
-            return
-        elif text.startswith(config.nick + ':'):
-            spt = text.split(':')[1].strip()
-            for x in nowords:
-                if spt.startswith(x):
-                    return
-        time.sleep(random.randint(1, 5))
-        msgo = mycb[channel].say(msgi)
-    else:
-        return
+    time.sleep(random.randint(1, 5))
+    msgo = mycb[channel].say(msgi)
     
     if type(msgo) == bytes:
         msgo = msgo.decode()
@@ -120,20 +102,15 @@ def chat(irc, event):
             response = response.upper()
 
         response = r_entity.sub(e, response)
-        if pm:
-            if random.random() <= 0.04:
-                return
-            irc.message(event.source, response)
-        else:
-            delim = random.choice((',', ':'))
-            msg = '%s' % (response)
+        delim = random.choice((',', ':'))
+        msg = '%s' % (response)
 
-            if random.random() <= 0.25:
-                msg = event.source + delim + ' ' + msg
-            if random.random() <= 0.05:
-                return
+        if random.random() <= 0.25:
+            msg = event.source + delim + ' ' + msg
+        if random.random() <= 0.05:
+            return
 
-            irc.message(event.target, msg)
+        irc.message(event.target, msg)
 
     if random.random() <= 0.05:
         chat(irc, event)
@@ -181,7 +158,7 @@ def random_chat(jenni, event):
     
     if random.randint(1,2) == 33:
         ntext = re.sub(FE_PATTERN, lambda m: FANCY_ENGLISH_DICT.get(m.group(0).upper()), event.message, flags=re.IGNORECASE)
-        jenni.message(event.source, "Did you mean: {0}".format(ntext))
+        jenni.message(event.target, "Did you mean: {0}".format(ntext))
         
 
 
