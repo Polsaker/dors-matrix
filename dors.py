@@ -123,7 +123,7 @@ class Dors(object):
     # callbacks
     def on_invite(self, room_id, state):
         self.client.join_room(room_id)
-        print("Got an invite for", room_id, "Display name:", state['events'][0]['content']['displayname'])
+        print("Got an invite for", room_id)
 
 
     def on_message(self, roomchunk):
