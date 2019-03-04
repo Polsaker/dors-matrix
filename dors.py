@@ -80,7 +80,7 @@ class Dors(object):
         except FileNotFoundError:
             self.client = MatrixClient(config.homeserver)
             token = self.client.login_with_password(username=config.username, password=config.password)
-            json.dump({'token': token, 'user_id': client.user_id}, open('.token', 'w'))
+            json.dump({'token': token, 'user_id': self.client.user_id}, open('.token', 'w'))
         
         self.client.add_invite_listener(self.on_invite)
         self.client.add_listener(self.on_message, 'm.room.message')
