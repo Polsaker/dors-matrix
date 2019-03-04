@@ -9,23 +9,23 @@ def wind_dir(degrees):
     '''Provide a nice little unicode character of the wind direction'''
     # Taken from jenni
     if degrees == 'VRB':
-        degrees = '\u21BB'
+        degrees = '\u21BB' # ↻
     elif (degrees <= 22.5) or (degrees > 337.5):
-        degrees = '\u2191'
+        degrees = '\u2B06' # ⬆
     elif (degrees > 22.5) and (degrees <= 67.5):
-        degrees = '\u2197'
+        degrees = '\u2197' # ↗
     elif (degrees > 67.5) and (degrees <= 112.5):
-        degrees = '\u2192'
+        degrees = '\u27A1' # →
     elif (degrees > 112.5) and (degrees <= 157.5):
-        degrees = '\u2198'
+        degrees = '\u2198' # ↘
     elif (degrees > 157.5) and (degrees <= 202.5):
-        degrees = '\u2193'
+        degrees = '\u2B07' # ⬇
     elif (degrees > 202.5) and (degrees <= 247.5):
-        degrees = '\u2199'
+        degrees = '\u2199' # ↙
     elif (degrees > 247.5) and (degrees <= 292.5):
-        degrees = '\u2190'
+        degrees = '\u2B05' # ←
     elif (degrees > 292.5) and (degrees <= 337.5):
-        degrees = '\u2196'
+        degrees = '\u2196' # ↖ 
 
     return degrees
     
@@ -111,8 +111,8 @@ def weather(irc, ev):
     
     pressure = weather['currently']['pressure']
     humidity = weather['currently']['humidity']
-    reply += ", humidity: \002{0}\002%".format(humidity*100)
-    reply += ", pressure: \002{0}\002hPa".format(pressure)
+    reply += ", humidity: \002{0}\002%".format(round(humidity*100, 2))
+    reply += ", pressure: \002{0}\002hPa".format(round(pressure, 2))
     
     speed = weather['currently']['windSpeed']
     degrees = weather['currently']['windBearing']
