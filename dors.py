@@ -122,8 +122,11 @@ class Dors(object):
 
     # callbacks
     def on_invite(self, room_id, state):
-        self.client.join_room(room_id)
-        print("Got an invite for", room_id)
+        if room_id.split(':')[1] in config.allowed_servers:
+            self.client.join_room(room_id)
+            print("Got an invite for", room_id)
+        else:
+            print("Got an invite for", room_id, "but it's not in an allowed_server")
 
 
     def on_message(self, roomchunk):
