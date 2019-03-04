@@ -79,7 +79,7 @@ class Dors(object):
             self.client = MatrixClient(config.homeserver, token=tok['token'], user_id=tok['user_id'])
         except FileNotFoundError:
             self.client = MatrixClient(config.homeserver)
-            token = client.login_with_password(username=config.username, password=config.password)
+            token = self.client.login_with_password(username=config.username, password=config.password)
             json.dump({'token': token, 'user_id': client.user_id}, open('.token', 'w'))
         
         self.client.add_invite_listener(self.on_invite)
