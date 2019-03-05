@@ -181,7 +181,7 @@ class Dors(object):
                     self.message(target, "Error in {0} module: {1}".format(stuff['module'], tb))
 
 
-    def message(self, target, message, p_html=False):
+    def message(self, target, message, p_html=False, message_type='m.notice'):
         """ Compatibility layer for porting IRC modules """
         print(message)
         if "\002" in message or "\003" in message or "\x1f" in message or "\x1d" in message or p_html:
@@ -194,16 +194,16 @@ class Dors(object):
             def replcolor(m):
                 return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(2))
             message = re.sub('\003(\d{1,2})(.*?)\003', replcolor, message)
-            return self.html_message(target, message)
+            return self.html_message(target, message, message_type)
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
-                                           content={'body': message, 'msgtype': 'm.notice'})
+                                           content={'body': message, 'msgtype': message_type})
     
-    def html_message(self, target, message):
+    def html_message(self, target, message, message_type='m.notice'):
         stripped = re.sub('<[^<]+?>', '', html.unescape(message))
 
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
                                            content={'formatted_body': message, 'format': 'org.matrix.custom.html',
-                                                    'body': stripped, 'msgtype': 'm.notice'})
+                                                    'body': stripped, 'msgtype': message_type})
 
     def isadmin(self, user):
         if user not in config.admins:
