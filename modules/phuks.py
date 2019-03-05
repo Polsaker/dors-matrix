@@ -52,17 +52,14 @@ def get_sub(name):
 
 @commandHook(['user'])
 def phukuser(irc, ev):
-    if ev.target in ("#phuks", "#phukadmins", "#throat", "Polsaker"):
-        if not ev.args:
-            return irc.reply("Usage: user <username>")
+    if not ev.args:
+        return irc.reply("Usage: user <username>")
 
-        irc.message(ev.replyto, get_user(ev.args[0]))
+    irc.message(ev.replyto, get_user(ev.args[0]))
 
 
 @commandHook(['sub'])
 def phuksub(irc, ev):
-    if ev.target in ("#phuks", "#phukadmins", "#throat", "Polsaker"):
-        if not ev.args:
-            return irc.reply("Usage: sub <subname>")
-
-        irc.message(ev.replyto, get_sub(ev.args[0]))
+    if not ev.args:
+        return irc.reply("Usage: sub <subname>")
+    irc.message(ev.replyto, get_sub(ev.args[0]))
