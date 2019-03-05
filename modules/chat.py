@@ -115,11 +115,13 @@ def chat(irc, event):
     if random.random() <= 0.05:
         chat(irc, event)
 
+
+
 FANCY_ENGLISH_DICT = {
     "french fries": "\002chips\002",
     "chips": "\002crisps\002",
     "candy bar": "\002chocolate glabbernaught\002",
-    "car": "\002motorized rollingham\002",
+    "car": "\002motorised rollingham\002",
     "firework": "\002merry fizzlebomb\002",
     "gravy": "\002meat water\002",
     "power cable": "\002electro rope\002",
@@ -139,11 +141,18 @@ FANCY_ENGLISH_DICT = {
     "lightbulb": "\002ceiling-bright\002",
     "ball": "\002blimpy bounce bounce\002",
     "snake": "\002slippery dippery long mover\002",
-    "road": "\002cobble-stone-clippity-clops\002",
-    "mail": "\002pip paper\002"
+    "road": "\002cobble-stone-clippity-clop\002",
+    "mail": "\002pip paper\002",
+    "rape": "\002forcey fun time\002",
+    "mailman": "\002postlord\002",
+    "pant": "\002leg sleeve\002",
+    "eggplant": "\002bunglespleen\002",
+    "popsicle": "\002cold on the cob\002",
+    "move": "\002pembo\002",
+    "moving": "\002pemboing\002"
 }
 
-FE_PATTERN = pattern = '|'.join(sorted(re.escape(k) for k in FANCY_ENGLISH_DICT))
+FE_PATTERN = pattern = '|'.join(sorted(('\\b' + re.escape(k) + '\\b') for k in FANCY_ENGLISH_DICT))
 
 @stuffHook(".+")
 def random_chat(jenni, event):
@@ -154,12 +163,15 @@ def random_chat(jenni, event):
     if random.random() <= (1 / 2500.0):
         old_input = event
         chat(jenni, event)
-    
-    
-    if random.randint(1,2) == 33:
-        ntext = re.sub(FE_PATTERN, lambda m: FANCY_ENGLISH_DICT.get(m.group(0).upper()), event.message, flags=re.IGNORECASE)
-        jenni.message(event.target, "Did you mean: {0}".format(ntext))
-        
+
+    if random.randint(1,4) == 1:
+        print(pattern)
+        ntext = re.sub(FE_PATTERN, lambda m: FANCY_ENGLISH_DICT.get(m.group(0).lower()), event.message, flags=re.IGNORECASE)
+        if ntext != event.message:
+            jenni.message(event.target, "Did you mean: {0}".format(ntext))
+
+    if not event.message.startswith(config.nick) and config.nick in event.message and random.randint(1, 3) == 1:
+        chat(jenni, event)
 
 
 def e(m):
