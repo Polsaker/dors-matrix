@@ -108,7 +108,7 @@ def chat(irc, event):
         response = r_entity.sub(e, response)
         delim = random.choice((',', ':'))
         msg = '%s' % (response)
-
+        typing(irc.client, event.target, 1, False)
         if random.random() <= 0.25:
             return irc.reply(msg)
         if random.random() <= 0.05:
@@ -210,11 +210,11 @@ def fchannels():
     return lines.split(',')
     
 
-def typing(cli, channel, msecs):
+def typing(cli, channel, msecs, typing=True):
     path = "/rooms/%s/typing/%s" % (
         quote(channel), quote(cli.user_id),
     )
-    params = {'typing': True, 'timeout': msecs}
+    params = {'typing': typing, 'timeout': msecs}
     return cli.api._send("PUT", path, params)
 
 
