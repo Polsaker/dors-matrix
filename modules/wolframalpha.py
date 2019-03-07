@@ -12,7 +12,7 @@ def fixaroo(m):
 @commandHook(['wolframalpha', 'wa'], help=".wa <input> -- sends input to wolframalpha and returns results")
 def wolframalpha(irc, ev):
     try:
-        res = client.query(ev.text)
+        res = client.query(ev.text, units='metric')
     except:
         return irc.message(ev.replyto, "Error while querying WolframAlpha")
     
