@@ -9,7 +9,7 @@ import threading
 import html
 
 class Message(object):
-    def __init__(self, source, target, message, cli=None):
+    def __init__(self, source, target, message, event_id, cli=None):
         self.source = source
         self.target = target
         self.message = message
@@ -17,6 +17,8 @@ class Message(object):
         self.args = list(filter(None, message.split(" ")[1:]))
         self.text = " ".join(self.args)
         self.replyto = target  # IRC compat
+        
+        self.event_id = event_id
         
         self.source_obj = cli.get_user(self.source)
         self.source_tag = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(self.source, self.source_obj.get_display_name())
@@ -133,7 +135,7 @@ class Dors(object):
         # if it's a notice we ignore it
         if roomchunk['content']['msgtype'] == 'm.notice':
             return
-        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], cli=self.client)
+        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], roomchunk['event_id'], cli=self.client)
         source, target, message = (roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
         print(event)
         # Commands
