@@ -58,8 +58,11 @@ def chat(irc, event):
 
     msgi = text.strip()
     msgo = str()
-
-    msgo = mycb[channel].say(msgi)
+    
+    try:
+        msgo = mycb[channel].say(msgi)
+    except:
+        mycb[channel] = CleverWrap(config.CLEVERBOT_API_KEY)
     
     if type(msgo) == bytes:
         msgo = msgo.decode()
