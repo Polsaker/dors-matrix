@@ -6,6 +6,7 @@ import config
 from cleverwrap import CleverWrap
 from html.entities import name2codepoint
 import json
+from urllib.parse import quote
 
 import random
 import re
@@ -28,6 +29,8 @@ def chat(irc, event):
         text = event.match.group(1)
     except IndexError:
         text = event.message
+    
+    read_receipt(irc.client, event.target, event.event_id)
 
     if len(text) > 1:
         if text.startswith('\x03') or text.startswith('\x01'):
@@ -56,14 +59,15 @@ def chat(irc, event):
     msgi = text.strip()
     msgo = str()
 
-    time.sleep(random.randint(1, 5))
     msgo = mycb[channel].say(msgi)
     
     if type(msgo) == bytes:
         msgo = msgo.decode()
     
     if msgo:
-        time.sleep(random.randint(1, 5))
+        stime = random.randint(1, 9)
+        typing(irc.client, event.target, stime * 1000)
+        time.sleep(stime)
 
         response = re.sub('(?i)clever(me|script|bot)', config.nick, msgo)
         response = re.sub('(?i)\S+bot', (base64.b64decode(random.choice(noun)).decode()), response)
@@ -204,3 +208,19 @@ def fchannels():
     f.close()
     lines = lines.replace('\n', '')
     return lines.split(',')
+    
+
+def typing(cli, channel, msecs):
+    path = "/rooms/%s/typing/%s" % (
+        quote(channel), quote(cli.user_id),
+    )
+    params = {'typing': True, 'timeout': msecs}
+    return cli.api._send("PUT", path, params)
+
+
+def read_receipt(cli, channel, event):
+    path = "/rooms/%s/receipt/m.read/%s" % (
+        quote(channel), quote(event),
+    )
+    params = {}
+    return cli.api._send("POST", path, params)
