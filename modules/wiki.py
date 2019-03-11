@@ -6,7 +6,7 @@ import re
 @commandHook(['wiki'])
 def wikipedia(irc, ev):
     term = '+'.join(str(x) for x in ev.args)
-    resp = requests.get("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=&titles=" + term + "&format=json&exsentences=3").json()
+    resp = requests.get("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=&titles=" + term + "&format=json&exsentences=3&redirects").json()
     tmp = str(resp['query']['pages'])
     pageid = tmp.split(':', 1)[0]
     pageid = re.findall(r'\d+', pageid)[0]
