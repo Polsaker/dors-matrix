@@ -20,7 +20,7 @@ def wikipedia(irc, ev):
         message += ' | ' + flink
     else:
         message += ' \n' + flink
-    irc.message(ev.replyto, ev.source + ": " + message)
+    irc.message(ev.replyto, message)
 
 
 @commandHook(['wikisearch'])
