@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8
+
 from matrix_client.client import MatrixClient
 import config
 import json
