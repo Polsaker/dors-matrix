@@ -10,7 +10,7 @@ def wikipedia(irc, ev):
     tmp = str(resp['query']['pages'])
     pageid = tmp.split(':', 1)[0]
     pageid = re.findall(r'\d+', pageid)[0]
-    message = resp['query']['pages'][pageid]['extract']
+    message = resp['query']['pages'][pageid]['extract'].strip()
     message = re.sub('<[^<]+?>', '', message) # dirty strip html tags
     if len(message) > 400:
         message = message[:400] + "…"
