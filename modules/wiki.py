@@ -11,16 +11,10 @@ def wikipedia(irc, ev):
     pageid = tmp.split(':', 1)[0]
     pageid = re.findall(r'\d+', pageid)[0]
     message = resp['query']['pages'][pageid]['extract'].strip()
-    message = re.sub('<[^<]+?>', '', message) # dirty strip html tags
-    if len(message) > 400:
-        message = message[:400] + "…"
     link = '_'.join(str(x) for x in ev.args)
     flink =  'https://en.wikipedia.org/wiki/' + link
-    if float(len(message) + len(flink)) < 400:
-        message += ' | ' + flink
-    else:
-        message += ' \n' + flink
-    irc.message(ev.replyto, message)
+
+    irc.message(ev.replyto, message + '\n' + flink, p_html=True)
 
 
 @commandHook(['wikisearch'])

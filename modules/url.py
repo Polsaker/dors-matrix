@@ -77,7 +77,7 @@ def find_title(url, bot):
             wk = requests.get(wiki)
             try:
                 extract = list(wk.json()['query']['pages'].values())[0]['extract']
-                return " ^ {0}".format(extract)
+                return "[Wikipedia] {0}".format(extract)
             except:
                 pass
                 
