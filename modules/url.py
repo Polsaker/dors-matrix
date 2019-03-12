@@ -44,7 +44,7 @@ def fetch_twitter_url(url):
 def find_title(url, bot):
     for item in config.urlblacklist:
         if item in url:
-            return False, 'blacklisted'
+            return False, False
     
     if not re.search('^((https?)|(ftp))://', url):
         url = 'http://' + url
@@ -59,15 +59,21 @@ def find_title(url, bot):
         appid = re.search('.*store.steampowered.com/app/(\d+).*', url)
         furl = bot.plugins['steam'].getAppInfo(appid.group(1), False)
         if furl:
-            return "[\002Steam\002] " + furl
+            return "[\002Steam\002] " + furl, False
     
     if 'twitter.com' in url:
+        if 'twitter' in bot.plugins:
+            m = re.match('.*twitter.com/.*/status/(\d*)/?.*', url)
+            if m:
+                furl = bot.plugins['twitter'].getTweet(m.group(1))
+                if furl:
+                    return furl, True
         return fetch_twitter_url(url)
     
     if ('youtu.be' or 'youtube.com' in url) and 'youtube' in bot.plugins:
         furl = bot.plugins['youtube'].fetchUrl(url)
         if furl:
-            return "[\002Youtube\002] " + furl
+            return "[\002Youtube\002] " + furl, False
     
     if '.wikipedia.org/wiki/' in url:
         # get the wiki's language
@@ -77,7 +83,7 @@ def find_title(url, bot):
             wk = requests.get(wiki)
             try:
                 extract = list(wk.json()['query']['pages'].values())[0]['extract']
-                return "[Wikipedia] {0}".format(extract)
+                return "[Wikipedia] {0}".format(extract), False
             except:
                 pass
                 
@@ -90,9 +96,9 @@ def find_title(url, bot):
     def remove_spaces(x):
         if '  ' in x:
             x = x.replace('  ', '')
-            return remove_spaces(x)
+            return remove_spaces(x), False
         else:
-            return x
+            return x, False
 
     title = remove_spaces(title)
 
@@ -155,7 +161,7 @@ def show_title_auto(irc, ev):
 
     k = 1
     print("ur, res", results)
-    for r in results:
+    for (r, trust) in results:
         ## loop through link, shorten pairs, and titles
         if k > 3:
             ## more than 3 titles to show from one line of text?
@@ -163,5 +169,5 @@ def show_title_auto(irc, ev):
             break
         k += 1
 
-        irc.message(ev.replyto, r)
+        irc.message(ev.replyto, r, p_html=trust)
 
