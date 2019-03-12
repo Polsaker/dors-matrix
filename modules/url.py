@@ -97,12 +97,15 @@ def find_title(url, bot):
     
     if 'twitter.com' in url:
         if 'twitter' in bot.plugins:
-            m = re.match('.*twitter.com/.*/status/(\d*)/?.*', url)
+            m = re.match('.*twitter.com/(.+?)(?:/status/(\d*)/?.*|$)', url)
             if m:
-                furl = bot.plugins['twitter'].getTweet(m.group(1))
+                if m.group(2):
+                    furl = bot.plugins['twitter'].getTweet(m.group(2))
+                else:
+                    furl = bot.plugins['twitter'].getUser(m.group(1))
                 if furl:
                     return furl, True
-        return fetch_twitter_url(url)
+        return fetch_twitter_url(url), True
     
     if ('youtu.be' or 'youtube.com' in url) and 'youtube' in bot.plugins:
         furl = bot.plugins['youtube'].fetchUrl(url)

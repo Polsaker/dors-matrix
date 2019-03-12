@@ -24,7 +24,12 @@ def getTweet(status_id):
 
 def getUser(screenname):
     try:
-        return api.GetUser(screen_name=screenname)
+        user = api.GetUser(screen_name=screenname)
+       
+        message = "{0}<b>{1}</b> (@{2}): {3}  - Joined: {8} - https://twitter.com/{2}<br><b>{4:,}</b> Tweets - <b>{5:,}</b> Following - <b>{6:,}</b> Followers - <b>{7:,}</b> Likes<br><p>{9}</p>"
+        joined = datetime.strptime(user.created_at, '%a %b %d %H:%M:%S +0000 %Y')
+        return message.format("\u2705 " if user.verified else "", user.name, user.screen_name, user.location,
+                              user.statuses_count, user.friends_count, user.followers_count, user.favourites_count, joined.strftime('%b %d %Y %H:%M:%S'), user.description)
     except:
         return False
 
@@ -44,12 +49,8 @@ def twitterUser(bot, ev):
         user = getUser(ev.args[0].replace('@', ''))
         if not user:
             return bot.say("Couldn't fetch user")
-        
-        message = "{0}<b>{1}</b> (@{2}): {3}  - Joined: {8} - https://twitter.com/{2}<br><b>{4:,}</b> Tweets - <b>{5:,}</b> Following - <b>{6:,}</b> Followers - <b>{7:,}</b> Likes<br><p>{9}</p>"
-        joined = datetime.strptime(user.created_at, '%a %b %d %H:%M:%S +0000 %Y')
-        message = message.format("\u2705 " if user.verified else "", user.name, user.screen_name, user.location,
-                                 user.statuses_count, user.friends_count, user.followers_count, user.favourites_count, joined.strftime('%b %d %Y %H:%M:%S'), user.description)
-        bot.message(ev.target, message, p_html=True)
+            
+        bot.message(ev.target, user, p_html=True)
     else: # assume it's a status
         status = getTweet(ev.args[0])
         if not status:
