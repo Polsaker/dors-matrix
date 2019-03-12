@@ -70,7 +70,7 @@ def fetch_throat_url(ti, ma):
                 post_type = "link post"
             elif post['ptype'] == 3:
                 post_type = "poll"
-            msg =  "[\002{0}\002 {1}] {2} - \002{3}\002 points (+{4}|-{5}). Created by \002{6}\002, {7} ago. {8}".format(config.throat_instances[ti], post['title'], post_type, post['score'], post['upvotes'], post['downvotes'], post['user'], format_timedelta(del_regist, locale='en_US'), post['link'] if post['link'] else '')
+            msg =  "[\002{0}\002 {1}] {2} - \002{3}\002 points (+{4}|-{5}). Created by \002{6}\002, {7} ago. {8}".format(config.throat_instances[ti], post_type, post['title'], post['score'], post['upvotes'], post['downvotes'], post['user'], format_timedelta(del_regist, locale='en_US'), post['link'] if post['link'] else '')
             
             return msg
             
