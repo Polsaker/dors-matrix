@@ -6,6 +6,8 @@ import time
 from bs4 import BeautifulSoup
 import requests
 import traceback
+import datetime
+from babel.dates import format_timedelta
 
 
 url_finder = re.compile('(?iu)(\!?(http|https|ftp)(://\S+\.?\S+/?\S+?))')
@@ -40,6 +42,38 @@ def fetch_twitter_url(url):
     title = title.replace('"', '')
     title = title.replace("on Twitter", "")
     return "[\002Twitter\002] {0}".format(title)
+
+
+def fetch_throat_url(ti, ma):
+    if ma.group(2):
+        req = requests.get("https://{0}/api/getComment/{1}".format(ti, ma.group(2)))
+        if req.status_code == requests.codes.ok:
+            req = req.json()
+            comment = req['comment']
+            regist = datetime.datetime.strptime(comment['time'], "%a, %d %b %Y %H:%M:%S %Z")
+            del_regist = datetime.datetime.utcnow() - regist
+            content = comment['content']
+            if len(content) > 200:
+                content = content[0:200] + "..."
+            return '[\002{0}\002 comment] \002{1}\002 points. Created by \002{2}\002, {3} ago.<br>{4}'.format(config.throat_instances[ti], comment['score'], comment['user'], format_timedelta(del_regist, locale='en_US'), content)
+    else:
+        req = requests.get("https://{0}/api/getPost/{1}".format(ti, ma.group(1)))
+        if req.status_code == requests.codes.ok:
+            req = req.json()
+            post = req['post']
+            regist = datetime.datetime.strptime(post['posted'], "%a, %d %b %Y %H:%M:%S %Z")
+            del_regist = datetime.datetime.utcnow() - regist
+            post_type = "UNKNOWN, STRANGE"
+            if post['ptype'] == 0:
+                post_type = "text post"
+            elif post['ptype'] == 1:
+                post_type = "link post"
+            elif post['ptype'] == 3:
+                post_type = "poll"
+            msg =  "[\002{0}\002 {1}] \002{2}\002 points (+{3}|-{4}). Created by \002{5}\002, {6} ago. {7}".format(config.throat_instances[ti], post_type, post['score'], post['upvotes'], post['downvotes'], post['user'], format_timedelta(del_regist, locale='en_US'), post['link'] if post['link'] else '')
+            
+            return msg
+            
 
 def find_title(url, bot):
     for item in config.urlblacklist:
@@ -86,8 +120,16 @@ def find_title(url, bot):
                 return "[Wikipedia] {0}".format(extract), False
             except:
                 pass
-                
     
+    for ti in getattr(config, 'throat_instances', []):
+        if ti in url:
+            ma = re.match('.*/s/.+?/(\d+)(?:/([a-z0-9-]{36,36}))?', url)
+            if ma:
+                pu = fetch_throat_url(ti, ma)
+                if pu:
+                    return pu, True
+
+                
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.text, 'lxml')
     title = str(soup.title.string)
@@ -96,15 +138,15 @@ def find_title(url, bot):
     def remove_spaces(x):
         if '  ' in x:
             x = x.replace('  ', '')
-            return remove_spaces(x), False
+            return remove_spaces(x)
         else:
-            return x, False
+            return x
 
     title = remove_spaces(title)
 
     if len(title) > 200:
         title = title[:200] + '...'
-    return "[url] {0}".format(title)
+    return "[url] {0}".format(title), False
         
 
 
