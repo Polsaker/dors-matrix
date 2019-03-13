@@ -165,10 +165,10 @@ def f_time(self, ev):
                         offset = tzdata['rawOffset'] + tzdata['dstOffset']
                         timenow = time.gmtime(time.time() + offset)
                         msg = time.strftime("%a, %d %b %Y %H:%M:%S", timenow)
-                        return self.message(ev.replyto, ev.source + ': (assuming \002' + tzdata['timeZoneName'] + '\002 was requested) ' + msg)
+                        return self.message(ev.replyto, '(assuming \002' + tzdata['timeZoneName'] + '\002 was requested) ' + msg)
                     
                 error = "Sorry, I don't know about the '%s' timezone." % tz
-                self.message(ev.replyto, ev.source + ': ' + error)
+                self.message(ev.replyto, error)
         else:
             if t >= 100 or t <= -100:
                 return self.reply('Time requested is too far away.')
