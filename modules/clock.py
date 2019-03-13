@@ -1,4 +1,6 @@
 from dors import commandHook
+import requests
+import config
 import re
 import datetime
 import time
@@ -148,6 +150,23 @@ def f_time(self, ev):
                 proc = subprocess.Popen(cmd, shell=True, stdout=PIPE)
                 self.message(ev.replyto, proc.communicate()[0])
             else:
+                # try geocoding
+                coords = requests.get('https://maps.googleapis.com/maps/api/geocode/json?address={0}&key={1}'
+                                      .format(' '.join(ev.args), config.google_apikey)).json()
+
+                if coords['status'] == 'OK':
+                    location = coords['results'][0]['formatted_address']
+                    latitude = coords['results'][0]['geometry']['location']['lat']
+                    longitude = coords['results'][0]['geometry']['location']['lng']
+
+                    tzdata = requests.get('https://maps.googleapis.com/maps/api/timezone/json?location={0},{1}&timestamp={2}&key={3}'
+                                          .format(latitude, longitude, time.time(), config.google_apikey)).json()
+                    if tzdata['status'] == "OK":
+                        offset = tzdata['rawOffset'] + tzdata['dstOffset']
+                        timenow = time.gmtime(time.time() + offset)
+                        msg = time.strftime("%a, %d %b %Y %H:%M:%S", timenow)
+                        return self.message(ev.replyto, ev.source + ': (assuming \002' + tzdata['timeZoneName'] + '\002 was requested) ' + msg)
+                    
                 error = "Sorry, I don't know about the '%s' timezone." % tz
                 self.message(ev.replyto, ev.source + ': ' + error)
         else:
