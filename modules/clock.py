@@ -102,12 +102,12 @@ TimeZones.update(TZ3)
 @commandHook(['time', 't'], help=".time UTC")
 def f_time(self, ev):
     """Returns the current time."""
-    tz = ev.args[0] if ev.args else 'UTC'
+    tz = ev.args[0] if ev.args else 'GMT'
 
     TZ = tz.upper()
     if len(tz) > 30: return
 
-    if TZ == 'Z':
+    if (TZ == 'UTC') or (TZ == 'Z'):
         msg = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
         self.message(ev.replyto, msg)
     elif r_local.match(tz): # thanks to Mark Shoulsdon (clsn)
