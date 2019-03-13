@@ -42,7 +42,7 @@ def fetchUrl(url):
                 duration = youtube_duration_to_time(video_duration)
 
                 return "{} (by {}) | Duration: {} | Views: {:,} | {:,} Likes / {:,} Dislikes".format(title, channel_title, duration,
-                                    int(statistics["viewCount"]), int(statistics["viewCount"]), int(statistics["dislikeCount"]))
+                                    int(statistics["viewCount"]), int(statistics["likeCount"]), int(statistics["dislikeCount"]))
                 
     
     
