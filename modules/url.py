@@ -86,7 +86,7 @@ def find_title(url, bot):
     if '/#!' in url:
         url = url.replace('/#!', '/?_escaped_fragment_=')
 
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0',
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36',
                'Accept': '*/*'}
     
     if 'store.steampowered.com/app' in url and 'steam' in bot.plugins:
