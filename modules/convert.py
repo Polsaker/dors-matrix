@@ -14,6 +14,8 @@ def convert(irc, ev):
         coinin = 'BTC'
     try:
         coinout = ev.args[2]
+        if coinout.lower() == "to":
+            coinout = ev.args[3]
     except (IndexError, ValueError):
         coinout = 'USD'
 
