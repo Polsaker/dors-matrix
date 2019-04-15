@@ -2,7 +2,7 @@ from dors import commandHook
 import requests
 
 
-@commandHook(['convert'])
+@commandHook(['convert', 'conv', 'co'])
 def convert(irc, ev):
     try:
         amount = float(ev.args[0])
