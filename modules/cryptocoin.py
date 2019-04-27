@@ -179,7 +179,7 @@ def coinPrice(irc, coin, amount, tick=True, bitfee=False):
     except:
         return irc.reply("Coin not found")
     if bitfee:
-        bitfee = requests.get("https://bitcoinfees.21.co/api/v1/fees/recommended").json()
+        bitfee = requests.get("https://bitcoinfees.earn.com/api/v1/fees/recommended").json()
         txs = requests.get('https://blockchain.info/q/unconfirmedcount')
         txs = str(txs.content).replace('b', '').replace('\'', '')
         fee0 = round(bitfee['fastestFee'] * 256 * 0.01,1)
