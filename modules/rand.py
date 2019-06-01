@@ -29,9 +29,9 @@ def rand(irc, event):
             bottom = first
             top = last
                 
-        if (bottom <= 0) or (top <= 0):
+        if (top <= 0):
             return irc.message(event.replyto, "The limits must be higher than 0")
         if bottom >= top:
             return irc.message(event.replyto, "Lolwut?")
 
-    irc.message(event.replyto, "{0}: Your random integer is {1}".format(event.source, random.randint(1, top)))
+    irc.message(event.replyto, "Your random integer is {1}".format(random.randint(1, top)))
