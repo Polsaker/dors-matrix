@@ -34,4 +34,4 @@ def rand(irc, event):
         if bottom >= top:
             return irc.message(event.replyto, "Lolwut?")
 
-    irc.message(event.replyto, "Your random integer is {1}".format(random.randint(1, top)))
+    irc.message(event.replyto, "Your random integer is {0}".format(random.randint(1, top)))
