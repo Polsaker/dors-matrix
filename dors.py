@@ -188,7 +188,7 @@ class Dors(object):
 
     def message(self, target, message, p_html=False, message_type='m.notice'):
         """ Compatibility layer for porting IRC modules """
-        print(message)
+        message = str(message)
         if "\002" in message or "\003" in message or "\x1f" in message or "\x1d" in message or p_html:
             # transform from IRC to HTML and send..
             if not p_html:
