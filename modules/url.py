@@ -207,6 +207,8 @@ def show_title_auto(irc, ev):
     k = 1
     print("ur, res", results)
     for (r, trust) in results:
+        if not r:
+            continue
         ## loop through link, shorten pairs, and titles
         if k > 3:
             ## more than 3 titles to show from one line of text?
