@@ -51,7 +51,8 @@ def fetchUrl(url):
 def youtube(bot, ev):
     if len(ev.args) == 0:
         return bot.say("Usage: .yt <some text>")
-    
+    if " ".join(ev.args) == "FIRDAY":
+        return bot.say("[\002Youtube Search\002] Rebecca Black - Friday | https://youtu.be/kfVsfOSbJY0")    
     query = urllib.parse.quote_plus(" ".join(ev.args))
     url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&safeSearch=moderate&key={0}&q={1}".format(config.google_apikey, query)
     res = requests.get(url)
