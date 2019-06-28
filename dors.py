@@ -197,8 +197,8 @@ class Dors(object):
             message = re.sub('\x1f(.*?)\x1f', '<u>\\1</u>', message)
             message = re.sub('\x1d(.*?)\x1d', '<i>\\1</i>', message)
             def replcolor(m):
-                return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(2))
-            message = re.sub('\003(\d{1,2})(.*?)\003', replcolor, message)
+                return '<font color="{0}" data-mx-bg-color="{2}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(3), IRC_COLOR_MAP.get(m.group(2), ''))
+            message = re.sub('\003(\d{1,2})(?:,(\d{1,2}))?(.*?)\003', replcolor, message)
             return self.html_message(target, message, message_type)
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
                                            content={'body': message, 'msgtype': message_type})
