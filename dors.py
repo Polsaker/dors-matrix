@@ -12,10 +12,11 @@ import threading
 import html
 
 class Message(object):
-    def __init__(self, source, target, message, event_id, cli=None):
+    def __init__(self, source, target, message, event_id, cli=None, evt=None):
         self.source = source
         self.target = target
         self.message = message
+        self.chunk = evt
         
         self.args = list(filter(None, message.split(" ")[1:]))
         self.text = " ".join(self.args)
@@ -138,7 +139,7 @@ class Dors(object):
         # if it's a notice we ignore it
         if roomchunk['content']['msgtype'] == 'm.notice':
             return
-        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], roomchunk['event_id'], cli=self.client)
+        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], roomchunk['event_id'], cli=self.client, evt=roomchunk)
         source, target, message = (roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
         print(event)
         # Commands
