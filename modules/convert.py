@@ -4,18 +4,26 @@ import requests
 
 @commandHook(['convert', 'conv', 'co'])
 def convert(irc, ev):
+    coinin = None
+    tfamp = False
     try:
         amount = float(ev.args[0])
     except (IndexError, ValueError):
         amount = 1.0
+        if len(ev.args) > 0:
+            coinin = ev.args[0]
+            tfamp = True
+
+    if not coinin:
+        try:
+            coinin = ev.args[1]
+        except (IndexError, ValueError):
+            coinin = 'BTC'
+
     try:
-        coinin = ev.args[1]
-    except (IndexError, ValueError):
-        coinin = 'BTC'
-    try:
-        coinout = ev.args[2]
+        coinout = ev.args[2 if not tfamp else 1]
         if coinout.lower() == "to":
-            coinout = ev.args[3]
+            coinout = ev.args[3 if not tfamp else 2]
     except (IndexError, ValueError):
         coinout = 'USD'
 
