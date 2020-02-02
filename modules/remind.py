@@ -92,8 +92,11 @@ def setup(bot):
             if oldtimes:
                 for oldtime in oldtimes:
                     for (channel, nick, message) in bot.rdb[oldtime]:
-                        source_obj = bot.client.get_user(nick)
-                        mention = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(nick, source_obj.get_display_name())
+                        try:
+                            source_obj = bot.client.get_user(nick)
+                            mention = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(nick, source_obj.get_display_name())
+                        except:
+                            mention = nick
                         if message:
                             try:
                                 bot.message(channel, mention + ': ' + html.escape(message), p_html=True, message_type='m.text')
