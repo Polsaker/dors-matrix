@@ -41,3 +41,4 @@ def priceConvert(irc, amount, coinin, coinout):
     else:
         message += "\002{0}\002 \002{1}\002 => \002{2:.8f}\002 \002{3}\002".format(amount, coinin, info, coinout)
     irc.reply(message + '.')
+
