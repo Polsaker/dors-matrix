@@ -1,5 +1,6 @@
 from dors import stuffHook, startupHook
 import re
+import traceback
 import requests
 import copy
 import time
@@ -42,35 +43,52 @@ def handle_phabs(irc, ev):
     # processing
     # 1 - objects:
     if object_names:
-        objects = phab.phid.lookup(names=object_names)
-        for name,item in objects.items():
-            output[item['phid']] = item['fullName'] + ' - ' + item['uri']
+        try:
+            objects = phab.phid.lookup(names=object_names)
+            for name,item in objects.items():
+                output[item['phid']] = item['fullName'] + ' - ' + item['uri']
+        except:
+            pass
     # 2 - votes
     if vote_ids:
         for vid in vote_ids:
-            item = phab.slowvote.info(poll_id=int(vid))
+            try:
+                item = phab.slowvote.info(poll_id=int(vid))
+            except:
+                continue
             output[item['phid']] = "V" + vid + ": " + item['question'] + ' - ' + item['uri']
     # 3 - files
     if file_ids:
         for fid in file_ids:
-            item = phab.file.info(id=fid)
+            try:
+                item = phab.file.info(id=fid)
+            except:
+                continue
             output[item['phid']] = item['objectName'] + ": " + item['uri'] + ' - ' + item['name']
     # 4 - paste
     if paste_ids:
         for fid in file_ids:
-            item = phab.paste.query(ids=[fid]).popitem()
+            try:
+                item = phab.paste.query(ids=[fid]).popitem()
+            except:
+                continue
+
             output[item['phid']] = "V" + fid + ": " + item['uri'] + ' - ' + item['title']
             if item['language']:
                 output[item['phid']] += " (" + language + ")"
-            user = list(phab.user.query(phids=[item['authorPHID']]))
+            user = list(phab_query(phids=[item['authorPHID']]))
             if user:
                 output[item['phid']] += " by " + user[0]['userName']
     # 5 - commit
     if commit_names:
-        objects = phab.diffusion.querycommits(names=commit_names)
+        try:
+            objects = phab.diffusion.querycommits(names=commit_names)
+        except:
+            objects = {'data': {}}
+
         for name,item in objects['data'].items():
             output[item['phid']] = item['summary']
-            user = list(phab.user.query(phids=[item['authorPHID']]))
+            user = list(phab_query(phids=[item['authorPHID']]))
             if user:
                 output[item['phid']] += " by " + user[0]['userName']
             output[item['phid']] += " - " + item['uri']
@@ -91,7 +109,10 @@ def handle_phabs(irc, ev):
 @startupHook()
 def onstart(bot):
     while True:
-        poll(bot)
+        try:
+            poll(bot)
+        except:
+            bot.message('!mrhgfTkELkPbTYscKH:phuks.co', traceback.format_exc())
         time.sleep(2)
 
 
@@ -100,9 +121,17 @@ def phid_info(phid):
     return list(info.values())[0]
 
 def get_user_name(phid):
-    info = phab.user.query(phids=[phid])
+    if phid == 'PHID-APPS-PhabricatorHarbormasterApplication':
+        return 'Harbormaster'
+    info = phab_query(phids=[phid])
     print(info, phid)
     return info[0]['userName']
+
+def phab_query(*args, **kwargs):
+    try:
+        return phab.user.query(*args, **kwargs)
+    except:
+        return []
 
 
 def poll(bot):
@@ -112,7 +141,7 @@ def poll(bot):
         latest = list(phab.feed.query(limit='1', view="text").values())[0]
         poll_last_seen_chrono_key = int(latest['chronologicalKey'])
 
-    events = phab.feed.query(view='text', before=poll_last_seen_chrono_key)
+    events = phab.feed.query(view='text')
 
     
     if not events:
