@@ -95,8 +95,15 @@ def setup(bot):
                         source_obj = bot.client.get_user(nick)
                         mention = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(nick, source_obj.get_display_name())
                         if message:
-                            bot.message(channel, mention + ': ' + html.escape(message), p_html=True, message_type='m.text')
-                        else: bot.message(channel, mention + '!', p_html=True, message_type='m.text')
+                            try:
+                                bot.message(channel, mention + ': ' + html.escape(message), p_html=True, message_type='m.text')
+                            except:
+                                pass
+                        else:
+                            try:
+                                bot.message(channel, mention + '!', p_html=True, message_type='m.text')
+                            except:
+                                pass
                     del bot.rdb[oldtime]
 
                 dump_database(rfn, bot.rdb)
