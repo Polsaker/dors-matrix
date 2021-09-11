@@ -2,6 +2,7 @@
 # -*- coding: utf-8
 
 from matrix_client.client import MatrixClient
+from urllib.parse import quote
 import config
 import json
 import os
@@ -148,7 +149,8 @@ class Dors(object):
         # if it's a notice we ignore it
         if roomchunk['content']['msgtype'] == 'm.notice':
             return
-        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], roomchunk['event_id'], cli=self.client, evt=roomchunk)
+        event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], roomchunk['event_id'],
+                        cli=self.client, evt=roomchunk)
         source, target, message = (roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
         print(event)
         # Commands
@@ -173,6 +175,7 @@ class Dors(object):
             try:
                 pot = next((item for item in self.commandHooks if command in item['commands']))
                 try:
+                    self.send_read_receipt(event.target, event.event_id)
                     pot['func'](self.wrapper(event), event)
                 except Exception as e:
                     print(traceback.format_exc())
@@ -213,6 +216,23 @@ class Dors(object):
             return self.html_message(target, message, message_type)
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
                                            content={'body': message, 'msgtype': message_type})
+
+    def send_read_receipt(self, room_id, event_id):
+        path = "/rooms/%s/receipt/m.read/%s" % (
+            quote(room_id), quote(str(event_id)),
+        )
+        return self.client.api._send("POST", path, {})  # noqa
+
+    def send_typing(self, room_id, typing=True, timeout=10000):
+        user_id = self.client.user_id
+        path = "/rooms/%s/typing/%s" % (
+            quote(room_id), quote(str(user_id)),
+        )
+        content = {
+            "typing": typing,
+            "timeout": timeout
+        }
+        return self.client.api._send("PUT", path, content)  # noqa
     
     def html_message(self, target, message, message_type='m.notice'):
         stripped = re.sub('<[^<]+?>', '', html.unescape(message))

@@ -5,20 +5,26 @@ import re
 
 unire = re.compile(r"\\:([0-9a-fA-F]{4})")
 client = wolframalpha.Client(config.wolframalpha_apikey)
+
+
 def fixaroo(m):
     txt = m.group(1)
     return chr(int(txt, 16))
 
+
 @commandHook(['wolframalpha', 'wa'], help=".wa <input> -- sends input to wolframalpha and returns results")
 def wolframalpha(irc, ev):
+    irc.send_typing(ev.target, 10000, True)
     try:
         res = client.query(ev.text, units='metric')
     except:
         return irc.message(ev.replyto, "Error while querying WolframAlpha")
+
     try:
         pods = [x for x in res]
     except:
         return irc.message(ev.replyto, "No fucking idea.")
+
     txtpods = []
     for i in range(0, len(pods)):
         try:
@@ -27,6 +33,8 @@ def wolframalpha(irc, ev):
             txtpods.append(pods[i].text)
         except:
             pass
+
+    irc.send_typing(ev.target, 10000, False)
     # txtpods = [x.text if x.text else "" for x in pods[:3]]
     # prettifying
     txtpods = [": ".join([l.strip() for l in x.split(" | ")]) for x in txtpods]
