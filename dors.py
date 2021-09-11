@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8
 
 from matrix_client.client import MatrixClient
@@ -30,20 +30,20 @@ class Message(object):
     def __repr__(self):
         return "<Message from:{0} to:{1} - {2}>".format(self.source, self.target, self.message)
         
-IRC_COLOR_MAP = {'0': '#FFFFFF', '00': '#FFFFFF',
- '1': '#000000', '01': '#000000',
+IRC_COLOR_MAP = {'0': 'white', '00': 'white',
+ '1': 'black', '01': 'black',
  '2': '#00007F', '02': '#00007F',
- '3': '#009300', '03': '#009300',
- '4': '#FF0000', '04': '#FF0000',
+ '3': 'green', '03': 'green',
+ '4': 'red', '04': 'red',
  '5': '#7F0000', '05': '#7F0000',
  '6': '#9C009C', '06': '#9C009C',
  '7': '#FC7F00', '07': '#FC7F00',
  '8': '#FFFF00', '08': '#FFFF00',
- '9': '#00FC00', '09': '#00FC00',
- '10': '#009393',
- '11': '#00FFFF',
- '12': '#0000FC',
- '13': '#FF00FF',
+ '9': 'lime', '09': 'lime',
+ '10': 'teal',
+ '11': 'aqua',
+ '12': 'blue',
+ '13': 'fuchsia',
  '14': '#7F7F7F',
  '15': '#D2D2D2'}
  
@@ -198,7 +198,7 @@ class Dors(object):
             message = re.sub('\x1f(.*?)\x1f', '<u>\\1</u>', message)
             message = re.sub('\x1d(.*?)\x1d', '<i>\\1</i>', message)
             def replcolor(m):
-                return '<font color="{0}" data-mx-bg-color="{2}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(3), IRC_COLOR_MAP.get(m.group(2), ''))
+                return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(3))
             message = re.sub('\003(\d{1,2})(?:,(\d{1,2}))?(.*?)\003', replcolor, message)
             return self.html_message(target, message, message_type)
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
