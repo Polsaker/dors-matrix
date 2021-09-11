@@ -147,7 +147,7 @@ def find_title(url, bot):
 
     title = remove_spaces(title)
 
-    if len(title) > 200:
+    if len(title) > 200 and 'twitter.com' not in url:
         title = title[:200] + '...'
     return "[url] {0}".format(title), False
         
