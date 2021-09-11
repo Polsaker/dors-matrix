@@ -219,14 +219,14 @@ class Dors(object):
 
     def send_read_receipt(self, room_id, event_id):
         path = "/rooms/%s/receipt/m.read/%s" % (
-            quote(room_id), quote(str(event_id)),
+            quote(room_id, safe=''), quote(str(event_id), safe=''),
         )
         return self.client.api._send("POST", path, {})  # noqa
 
     def send_typing(self, room_id, typing=True, timeout=10000):
         user_id = self.client.user_id
         path = "/rooms/%s/typing/%s" % (
-            quote(room_id), quote(str(user_id)),
+            quote(room_id, safe=''), quote(str(user_id), safe=''),
         )
         content = {
             "typing": typing,
