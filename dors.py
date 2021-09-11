@@ -230,8 +230,9 @@ class Dors(object):
         )
         content = {
             "typing": typing,
-            "timeout": timeout
         }
+        if typing:
+            content['timeout'] = timeout
         return self.client.api._send("PUT", path, content)  # noqa
     
     def html_message(self, target, message, message_type='m.notice'):
