@@ -4,14 +4,14 @@ import config
 from datetime import datetime
 from babel.dates import format_timedelta
 
-api = twitter.Api(consumer_key=config.twitter_consumer_key, consumer_secret=config.twitter_consumer_secret, application_only_auth=True)
+api = twitter.Api(consumer_key=config.twitter_consumer_key, consumer_secret=config.twitter_consumer_secret, application_only_auth=True, tweet_mode='extended')
 
 def getTweet(status_id):
     global api
     try:
         status = api.GetStatus(status_id)
         del_regist = datetime.utcnow() - datetime.strptime(status.created_at, '%a %b %d %H:%M:%S +0000 %Y')
-        text = status.text
+        text = status.full_text
         # Find all hashtags and replace them
         for h in status.hashtags:
             text = text.replace('#' + h.text, '<a href="https://twitter.com/hashtag/{0}">#{0}</a>'.format(h.text))
