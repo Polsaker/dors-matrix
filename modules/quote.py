@@ -117,7 +117,7 @@ def delquote(irc, ev):
 
 @commandHook(['grab', 'grabquote'], help=".grab <nick> -- Creates a quote with the last line <nick> sent to the channel.")
 def grab(irc, ev):
-    find = irc.getPlugin('find')
+    find = irc.get_plugin('find')
     
     if not find:
         return irc.message(ev.replyto, '"find" module not loaded.')

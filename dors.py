@@ -11,6 +11,7 @@ import re
 import threading
 import html
 
+
 class Message(object):
     def __init__(self, source, target, message, event_id, cli=None, evt=None):
         self.source = source
@@ -25,27 +26,30 @@ class Message(object):
         self.event_id = event_id
         
         self.source_obj = cli.get_user(self.source)
-        self.source_tag = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(self.source, self.source_obj.get_display_name())
+        self.source_tag = f'<a href="https://matrix.to/#/{self.source}">{self.source_obj.get_display_name()}</a>'
     
     def __repr__(self):
         return "<Message from:{0} to:{1} - {2}>".format(self.source, self.target, self.message)
-        
-IRC_COLOR_MAP = {'0': 'white', '00': 'white',
- '1': 'black', '01': 'black',
- '2': '#00007F', '02': '#00007F',
- '3': 'green', '03': 'green',
- '4': 'red', '04': 'red',
- '5': '#7F0000', '05': '#7F0000',
- '6': '#9C009C', '06': '#9C009C',
- '7': '#FC7F00', '07': '#FC7F00',
- '8': '#FFFF00', '08': '#FFFF00',
- '9': 'lime', '09': 'lime',
- '10': 'teal',
- '11': 'aqua',
- '12': 'blue',
- '13': 'fuchsia',
- '14': '#7F7F7F',
- '15': '#D2D2D2'}
+
+
+IRC_COLOR_MAP = {
+    '0': 'white', '00': 'white',
+    '1': 'black', '01': 'black',
+    '2': '#00007F', '02': '#00007F',
+    '3': 'green', '03': 'green',
+    '4': 'red', '04': 'red',
+    '5': '#7F0000', '05': '#7F0000',
+    '6': '#9C009C', '06': '#9C009C',
+    '7': '#FC7F00', '07': '#FC7F00',
+    '8': '#FFFF00', '08': '#FFFF00',
+    '9': 'lime', '09': 'lime',
+    '10': 'teal',
+    '11': 'aqua',
+    '12': 'blue',
+    '13': 'fuchsia',
+    '14': '#7F7F7F',
+    '15': '#D2D2D2'
+}
  
 
 class Dors(object):
@@ -70,14 +74,14 @@ class Dors(object):
             if module in config.whitelistonly_modules:
                 whitelistonly = True
 
-        if whitelistonly == True:
+        if whitelistonly:
             for module in config.whitelistonly_modules:
-                self.loadModule(module)
+                self.load_module(module)
         else:
             for module in modules:
                 if module in config.disabled_modules:
                     continue
-                self.loadModule(module)
+                self.load_module(module)
     
     def connect(self):
         try:
@@ -85,7 +89,7 @@ class Dors(object):
             self.client = MatrixClient(config.homeserver, token=tok['token'], user_id=tok['user_id'])
         except FileNotFoundError:
             self.client = MatrixClient(config.homeserver)
-            token = self.client.login_with_password(username=config.username, password=config.password)
+            token = self.client.login(username=config.username, password=config.password, sync=True)
             json.dump({'token': token, 'user_id': self.client.user_id}, open('.token', 'w'))
         
         self.client.add_invite_listener(self.on_invite)
@@ -94,7 +98,7 @@ class Dors(object):
         for hook in self.startupHooks:
             try:
                 t = threading.Thread(target=hook['func'], args=(self,))
-                t.daemon=True
+                t.daemon = True
                 t.start()
             except Exception as e:
                 print(traceback.format_exc())
@@ -102,9 +106,7 @@ class Dors(object):
                 tb = repr(e) + traceback.format_exc().splitlines()[-3]
                 print("Error in {0} module: {1}".format(hook['module'], tb))
 
-
-
-    def loadModule(self, module):
+    def load_module(self, module):
         print("Loading", module)
         themodule = __import__("modules." + module, locals(), globals())
         themodule = getattr(themodule, module)
@@ -113,27 +115,34 @@ class Dors(object):
         # Iterate over all the methods in the module to find handlers
         funcs = [f for _, f in themodule.__dict__.items() if callable(f)]
         for func in funcs:
-            try:
-                func._handler
-            except:
-                continue # nothing to do here.
-            if func._handler == 1: # Stuff handler.
-                self.stuffHandlers.append({'regex': func._regex, 'func': func, 'module': module})
-            elif func._handler == 2: # startup
-                self.startupHooks.append({'func': func, 'module': module})
-            elif func._handler == 3: # command
-                self.commandHooks.append({'commands': func._commands, 'help': func._help, 'func': func, 'module': module})
-
-
+            if not getattr(func, '_handler', False):
+                continue
+            if getattr(func, '_handler') == 1:  # Stuff handler.
+                self.stuffHandlers.append({
+                    'regex': func._regex,
+                    'func': func,
+                    'module': module
+                })
+            elif getattr(func, '_handler') == 2:  # startup
+                self.startupHooks.append({
+                    'func': func,
+                    'module': module
+                })
+            elif getattr(func, '_handler') == 3:  # command
+                self.commandHooks.append({
+                    'commands': func._commands,
+                    'help': func._help,
+                    'func': func,
+                    'module': module
+                })
 
     # callbacks
-    def on_invite(self, room_id, state):
+    def on_invite(self, room_id, _):
         if room_id.split(':')[1] in config.allowed_servers:
             self.client.join_room(room_id)
             print("Got an invite for", room_id)
         else:
             print("Got an invite for", room_id, "but it's not in an allowed_server")
-
 
     def on_message(self, roomchunk):
         # if it's a notice we ignore it
@@ -145,10 +154,13 @@ class Dors(object):
         # Commands
         if message.strip().startswith(config.prefix):
             try:
-                if ((time.time() - self.lastheardfrom[source] < 6) and # if it's been six seconds since this person has made a command...
-                    (source == self.sourcehistory[-2] and source == self.sourcehistory[-1]) and # And they made the last two commands...
-                    not self.isadmin(source)): # And the person is not an administrator...
-                    return # Ignore it
+                # if it's been six seconds since this person has made a command...
+                # And they made the last two commands...
+                # And the person is not an administrator...
+                last_msg = time.time() - self.lastheardfrom[source]
+                is_spammy = source == self.sourcehistory[-2] and source == self.sourcehistory[-1]
+                if last_msg < 6 and is_spammy and not self.isadmin(source):
+                    return  # Ignore it
             except (KeyError, IndexError):
                 pass
             finally:
@@ -160,16 +172,14 @@ class Dors(object):
             
             try:
                 pot = next((item for item in self.commandHooks if command in item['commands']))
-            except StopIteration:
-                pot = False
-
-            if pot:
                 try:
                     pot['func'](self.wrapper(event), event)
                 except Exception as e:
                     print(traceback.format_exc())
                     tb = repr(e) + traceback.format_exc().splitlines()[-3]
                     self.message(target, "Error in {0} module: {1}".format(pot['module'], tb))
+            except StopIteration:
+                pass
         
         # Hooks
         # Iterate over all the stuff handlers.
@@ -186,7 +196,6 @@ class Dors(object):
                     tb = repr(e) + traceback.format_exc().splitlines()[-3]
                     self.message(target, "Error in {0} module: {1}".format(stuff['module'], tb))
 
-
     def message(self, target, message, p_html=False, message_type='m.notice'):
         """ Compatibility layer for porting IRC modules """
         message = str(message)
@@ -197,9 +206,10 @@ class Dors(object):
             message = re.sub('\002(.*?)\002', '<b>\\1</b>', message)
             message = re.sub('\x1f(.*?)\x1f', '<u>\\1</u>', message)
             message = re.sub('\x1d(.*?)\x1d', '<i>\\1</i>', message)
+
             def replcolor(m):
                 return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(3))
-            message = re.sub('\003(\d{1,2})(?:,(\d{1,2}))?(.*?)\003', replcolor, message)
+            message = re.sub(r'\003(\d{1,2})(?:,(\d{1,2}))?(.*?)\003', replcolor, message)
             return self.html_message(target, message, message_type)
         self.client.api.send_message_event(room_id=target, event_type='m.room.message',
                                            content={'body': message, 'msgtype': message_type})
@@ -216,13 +226,12 @@ class Dors(object):
             return False
         return True
     
-    def getPlugin(self, plugin):
+    def get_plugin(self, plugin):
         try:
             return self.plugins[plugin]
         except KeyError:
             return False
 
-    
     def wrapper(self, event):
         """ we wrap ourselves before passing to modules """
         class BotWrapper(object):
@@ -231,9 +240,10 @@ class Dors(object):
 
             def __getattr__(self, attr):
                 if attr == 'say' or attr == 'msg':
-                    return (lambda msg: self._bot.message(event.target, msg))
+                    return lambda msg: self._bot.message(event.target, msg)
                 elif attr == 'reply':
-                    return (lambda msg: self._bot.message(event.target, event.source_tag + ': ' + html.escape(msg), p_html=True))
+                    return lambda msg: self._bot.message(event.target, event.source_tag + ': ' + html.escape(msg),
+                                                         p_html=True)
                 
                 return getattr(self._bot, attr)
 
@@ -245,9 +255,11 @@ class Dors(object):
 
         return BotWrapper(self)
 
+
 if __name__ == '__main__':
     mb = Dors()
     mb.connect()
+
     def foo(e):
         print(e)
         
@@ -262,16 +274,19 @@ def stuffHook(regex):
         return func
     return wrap
 
+
 def commandHook(commands, help=""):
     if type(commands) == str:
         commands = [commands]
+
     def wrap(func):
         func._handler = 3 # 3: Command.
         func._commands = commands
         func._help = help
         return func
     return wrap
-    
+
+
 def startupHook(dummy=None):
     def wrap(func):
         func._handler = 2 # 2: function called when bot connects.
