@@ -15,11 +15,19 @@ def wolframalpha(irc, ev):
         res = client.query(ev.text, units='metric')
     except:
         return irc.message(ev.replyto, "Error while querying WolframAlpha")
-    
-    pods = [x for x in res]
-    if not pods:
-        return irc.message(ev.replyto, "No data.")
-    txtpods = [x.text if x.text else "" for x in pods[:3]]
+    try:
+        pods = [x for x in res]
+    except:
+        return irc.message(ev.replyto, "No fucking idea.")
+    txtpods = []
+    for i in range(0, len(pods)):
+        try:
+            if not pods[i].text or type(pods[i].text) is not str:
+                continue
+            txtpods.append(pods[i].text)
+        except:
+            pass
+    # txtpods = [x.text if x.text else "" for x in pods[:3]]
     # prettifying
     txtpods = [": ".join([l.strip() for l in x.split(" | ")]) for x in txtpods]
     txtpods = ["; ".join([l.strip() for l in x.split("\n")]) for x in txtpods]
