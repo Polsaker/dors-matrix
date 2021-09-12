@@ -3,7 +3,7 @@
 from dors import stuffHook
 import config
 
-from cleverwrap import CleverWrap
+import cleverbotfree
 from html.entities import name2codepoint
 import json
 from urllib.parse import quote
@@ -22,6 +22,7 @@ HTML_ENTITIES = { 'apos': "'" }
 noun = ['ZHVjaw==', 'Y2F0', 'ZG9n', 'aHVtYW4=',]
 r_entity = re.compile(r'\|[0-9A-F#]{,4}')
 random.seed()
+
 
 @stuffHook("(?i)" + config.nick + "[:,]?\s*(.*)")
 def chat(irc, event):
@@ -50,7 +51,10 @@ def chat(irc, event):
     try:
         mycb[channel]
     except KeyError:
-        mycb[channel] = CleverWrap(config.CLEVERBOT_API_KEY)
+        mycb[channel] = None
+        foo = cleverbotfree.Cleverbot('')
+        foo.single_exchange()
+
 
     for x in nowords:
         if text.startswith(x):

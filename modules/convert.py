@@ -38,7 +38,7 @@ def convert(irc, ev):
 
     # Check if we're trying to convert temperature
     if unit_from in temperature_units and unit_to in temperature_units:
-        temperature_convert(irc, amount, temperature_units[unit_from], temperature_units[unit_to])
+        return temperature_convert(irc, amount, temperature_units[unit_from], temperature_units[unit_to])
 
     price_convert(irc, amount, unit_from.upper(), unit_to.upper())
 
