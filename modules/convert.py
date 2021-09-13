@@ -27,7 +27,7 @@ def convert(irc, ev):
         amount = "1"
     amount = amount.replace('k', '000').replace('K', '000')
     amount = amount.replace('m', '000000').replace('M', '000000')
-    amount = amount.replace(',', '.')  # tehee
+    amount = amount.replace(',', '')  # tehee
     amount = amount.replace(" ", "")
     amount = float(amount)
 
@@ -49,11 +49,11 @@ def price_convert(irc, amount, coinin, coinout):
     if 'Error' in str(info):
         return irc.reply(info['Message'])
     info = round(float(info[coinout]) * amount, 8)
-    if coinout != "BTC":
-        message += "\002{0:.2f}\002 \002{1}\002 => \002{2:.2f}\002 \002{3}\002".format(amount, coinin, info, coinout)
+    if coinout in ("BTC", 'ETH'):
+        message += "\002{0}\002 \002{1}\002 => \002{2:.8f}\002 \002{3}\002.".format(amount, coinin, info, coinout)
     else:
-        message += "\002{0}\002 \002{1}\002 => \002{2:.8f}\002 \002{3}\002".format(amount, coinin, info, coinout)
-    irc.reply(message + '.')
+        message += "\002{0:,.2f}\002 \002{1}\002 => \002{2:,.2f}\002 \002{3}\002.".format(amount, coinin, info, coinout)
+    irc.reply(message)
 
 
 def temperature_convert(irc, amount, unit_from, unit_to):
@@ -67,4 +67,4 @@ def temperature_convert(irc, amount, unit_from, unit_to):
     # Convert to specified unit
     conv_amount = temp_funcs[unit_to](conv_amount)
     irc.reply(f"\002{amount:.2f}\002 \002{unit_from.capitalize()}\002 => \002{conv_amount:.2f}\002 "
-              f"\002{unit_to.capitalize()}\002")
+              f"\002{unit_to.capitalize()}\002.")
