@@ -2,7 +2,7 @@ import re
 import requests
 from dors import commandHook
 
-convert_re = re.compile(r"^(?P<amount>[0-9.,Kk ]+?)? ?(?P<unit_from>[a-zA-Z]+) (to ?)?(?P<unit_to>[a-zA-Z]+)?$")
+convert_re = re.compile(r"^(?P<amount>[0-9.,KkMm ]+?)? ?(?P<unit_from>[a-zA-Z]+) (to ?)?(?P<unit_to>[a-zA-Z]+)?$")
 
 temperature_units = {
     'f': 'farenheit',
@@ -16,11 +16,11 @@ temperature_units = {
 @commandHook(['convert', 'conv', 'co', 'c'])
 def convert(irc, ev):
     if not ev.args:
-        irc.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
+        return irc.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
 
     res = convert_re.match(" ".join(ev.args))
     if not res:
-        irc.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
+        return irc.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
 
     amount = res.group('amount')
     if not amount:
