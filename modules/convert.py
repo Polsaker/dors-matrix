@@ -1,8 +1,9 @@
+import copy
 import re
 import requests
 from dors import commandHook
 
-convert_re = re.compile(r"^(?P<amount>[0-9.,KkMm ]+?)? ?(?P<unit_from>[a-zA-Z]+) (to ?)?(?P<unit_to>[a-zA-Z]+)?$")
+convert_re = re.compile(r"^(?P<amount>[\-0-9.,KkMm ]+?)? ?(?P<unit_from>[a-zA-Z]+) (to ?)?(?P<unit_to>[a-zA-Z]+)?$")
 
 temperature_units = {
     'f': 'farenheit',
@@ -57,14 +58,19 @@ def price_convert(irc, amount, coinin, coinout):
 
 
 def temperature_convert(irc, amount, unit_from, unit_to):
-    temp_funcs = {
+    temp_to_c_funcs = {
         'celsius': lambda x: x,
-        'farenheit': lambda x: (x * 9/5) + 32
+        'farenheit': lambda x: (x - 32) * 5 / 9
+    }
+    c_to_temp_funcs = copy.copy(temp_to_c_funcs)
+    c_to_temp_funcs |= {
+        'farenheit': lambda x: (x * 9 / 5) + 32
     }
     # Here we basically only do f to c and c to f, but i'll make this the long way
     # Convert to common unit (c)
-    conv_amount = temp_funcs[unit_from](amount)
+    conv_amount = temp_to_c_funcs[unit_from](amount)
+    print("in_c", conv_amount, unit_from)
     # Convert to specified unit
-    conv_amount = temp_funcs[unit_to](conv_amount)
+    conv_amount = c_to_temp_funcs[unit_to](conv_amount)
     irc.reply(f"\002{amount:.2f}\002 \002{unit_from.capitalize()}\002 => \002{conv_amount:.2f}\002 "
               f"\002{unit_to.capitalize()}\002.")
