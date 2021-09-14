@@ -3,6 +3,9 @@
 
 from matrix_client.client import MatrixClient
 from urllib.parse import quote
+
+from matrix_client.user import User
+
 import config
 import json
 import os
@@ -26,7 +29,7 @@ class Message(object):
         
         self.event_id = event_id
         
-        self.source_obj = cli.get_user(self.source)
+        self.source_obj = User(cli, self.source)
         self.source_tag = f'<a href="https://matrix.to/#/{self.source}">{self.source_obj.get_display_name()}</a>'
     
     def __repr__(self):
@@ -150,7 +153,7 @@ class Dors(object):
         if roomchunk['content']['msgtype'] == 'm.notice':
             return
         event = Message(roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'], roomchunk['event_id'],
-                        cli=self.client, evt=roomchunk)
+                        cli=self.client.api, evt=roomchunk)
         source, target, message = (roomchunk['sender'], roomchunk['room_id'], roomchunk['content']['body'])
         print(event)
         # Commands
