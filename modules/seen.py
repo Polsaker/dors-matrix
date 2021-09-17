@@ -1,9 +1,9 @@
 """ Seen module. Requires the find module to be loaded. """
 
-from dors import commandHook
+from dors import command_hook
 from datetime import datetime, timedelta
 
-@commandHook(['seen'], help="Shows when a nick was last seen. Usage: seen <nick>")
+@command_hook(['seen'], help="Shows when a nick was last seen. Usage: seen <nick>")
 def seen(irc, ev):
     if not ev.args:
         return irc.reply("Usage: seen <nick>")

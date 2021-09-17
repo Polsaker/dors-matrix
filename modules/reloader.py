@@ -1,8 +1,8 @@
-from dors import commandHook
+from dors import command_hook
 import sys
 
 
-@commandHook('load', help="load <module> -- Loads a module")
+@command_hook('load', help="load <module> -- Loads a module")
 def load(irc, event):
     if not irc.isadmin(event.source):
         return irc.message(event.replyto, "Not authorized")
@@ -11,7 +11,7 @@ def load(irc, event):
     irc.load_module(event.args[0])
 
 
-@commandHook('unload', help="unload <module> -- Unloads a module")
+@command_hook('unload', help="unload <module> -- Unloads a module")
 def unload(irc, event):
     if not irc.isadmin(event.source):
         return irc.message(event.replyto, "Not authorized")
@@ -20,7 +20,7 @@ def unload(irc, event):
     unload_module(irc, event.args[0])
 
 
-@commandHook('reload', help="reload <module> -- Unloads and then reloads a module")
+@command_hook('reload', help="reload <module> -- Unloads and then reloads a module")
 def reload(irc, event):
     if not irc.isadmin(event.source):
         return irc.message(event.replyto, "Not authorized")
@@ -43,13 +43,13 @@ def unload_module(irc, module):
         if h['module'] == module:
             irc.stuffHandlers.remove(h)
     
-    for h in irc.startupHooks[:]:
+    for h in irc.startup_hooks[:]:
         if h['module'] == module:
-            irc.startupHooks.remove(h)
+            irc.startup_hooks.remove(h)
     
-    for h in irc.commandHooks[:]:
+    for h in irc.command_hooks[:]:
         if h['module'] == module:
-            irc.commandHooks.remove(h)
+            irc.command_hooks.remove(h)
 
     # 3 - Unregister module
     del irc.plugins[module]

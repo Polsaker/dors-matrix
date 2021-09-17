@@ -1,4 +1,4 @@
-from dors import commandHook, startupHook
+from dors import command_hook, startup_hook
 import config
 import requests
 import time
@@ -54,7 +54,7 @@ def pretty_date(time=False):
     return str(day_diff / 365) + " years ago"
 
 
-@commandHook(['mine', 'miner', 'mining'])
+@command_hook(['mine', 'miner', 'mining'])
 def miningstats(irc, ev):
     mine = requests.get("https://phuks.co/miner/stats").json()
     info = requests.get("https://api.coinmarketcap.com/v1/ticker/monero/").json()[0]
@@ -92,7 +92,7 @@ def miningstats(irc, ev):
     irc.message(ev.replyto, message)
 
 
-@commandHook(['supportxmr'])
+@command_hook(['supportxmr'])
 def supportxmr(irc, ev):
     info = requests.get("https://supportxmr.com/api/miner/{0}/stats".format(config.XMRaddress)).json()
     rate = info['hash']

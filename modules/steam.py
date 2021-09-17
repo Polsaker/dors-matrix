@@ -1,13 +1,13 @@
 """ Crappy module to get info on a steam game. """ 
 
-from dors import commandHook, startupHook
+from dors import command_hook, startup_hook
 import time
 import requests
 
 ts_steam = 0
 ts_apps = {}
 
-@startupHook()
+@startup_hook()
 def updateapps(irc):
     global ts_steam, ts_apps
     search1 = requests.get("https://api.steampowered.com/ISteamApps/GetAppList/v2/").json()
@@ -22,7 +22,7 @@ def updateapps(irc):
 updateapps(None)
 
 
-@commandHook(['steam', 'game'], help="Returns game info from Steam.")
+@command_hook(['steam', 'game'], help="Returns game info from Steam.")
 def steam(irc, ev):
     global ts_steam, ts_apps
     game = " ".join(ev.args)

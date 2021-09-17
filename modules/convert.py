@@ -1,7 +1,9 @@
 import copy
 import re
 import requests
-from dors import commandHook
+from nio import MatrixRoom
+
+from dors import command_hook, Jenny, HookMessage
 
 convert_re = re.compile(r"^(?P<amount>[\-0-9.,KkMm ]+?)? ?(?P<unit_from>[a-zA-Z]+) (to ?)?(?P<unit_to>[a-zA-Z]+)?$")
 
@@ -14,14 +16,14 @@ temperature_units = {
 }
 
 
-@commandHook(['convert', 'conv', 'co', 'c'])
-def convert(irc, ev):
-    if not ev.args:
-        return irc.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
+@command_hook(['convert', 'conv', 'co', 'c'])
+async def convert(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    if not event.args:
+        return await bot.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
 
-    res = convert_re.match(" ".join(ev.args))
+    res = convert_re.match(" ".join(event.args))
     if not res:
-        return irc.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
+        return await bot.reply("Usage: .convert <amount> <from> <to> -- Converts stuff from one unit to another.")
 
     amount = res.group('amount')
     if not amount:
@@ -39,12 +41,12 @@ def convert(irc, ev):
 
     # Check if we're trying to convert temperature
     if unit_from in temperature_units and unit_to in temperature_units:
-        return temperature_convert(irc, amount, temperature_units[unit_from], temperature_units[unit_to])
+        return await temperature_convert(bot, amount, temperature_units[unit_from], temperature_units[unit_to])
 
-    price_convert(irc, amount, unit_from.upper(), unit_to.upper())
+    await price_convert(bot, amount, unit_from.upper(), unit_to.upper())
 
 
-def price_convert(irc, amount, coinin, coinout):
+async def price_convert(irc: Jenny, amount, coinin, coinout):
     message = ""
     info = requests.get("https://min-api.cryptocompare.com/data/price?fsym=" + coinin + "&tsyms=" + coinout).json()
     if 'Error' in str(info):
@@ -54,10 +56,10 @@ def price_convert(irc, amount, coinin, coinout):
         message += "\002{0}\002 \002{1}\002 => \002{2:.8f}\002 \002{3}\002.".format(amount, coinin, info, coinout)
     else:
         message += "\002{0:,.2f}\002 \002{1}\002 => \002{2:,.2f}\002 \002{3}\002.".format(amount, coinin, info, coinout)
-    irc.reply(message)
+    await irc.reply(message)
 
 
-def temperature_convert(irc, amount, unit_from, unit_to):
+async def temperature_convert(irc: Jenny, amount, unit_from, unit_to):
     temp_to_c_funcs = {
         'celsius': lambda x: x,
         'farenheit': lambda x: (x - 32) * 5 / 9
@@ -69,8 +71,7 @@ def temperature_convert(irc, amount, unit_from, unit_to):
     # Here we basically only do f to c and c to f, but i'll make this the long way
     # Convert to common unit (c)
     conv_amount = temp_to_c_funcs[unit_from](amount)
-    print("in_c", conv_amount, unit_from)
     # Convert to specified unit
     conv_amount = c_to_temp_funcs[unit_to](conv_amount)
-    irc.reply(f"\002{amount:.2f}\002 \002{unit_from.capitalize()}\002 => \002{conv_amount:.2f}\002 "
-              f"\002{unit_to.capitalize()}\002.")
+    await irc.reply(f"\002{amount:.2f}\002 \002{unit_from.capitalize()}\002 => \002{conv_amount:.2f}\002 "
+                    f"\002{unit_to.capitalize()}\002.")

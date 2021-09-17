@@ -1,9 +1,9 @@
-from dors import commandHook
+from dors import command_hook
 import requests
 import re
 
 
-@commandHook(['wiki'])
+@command_hook(['wiki'])
 def wikipedia(irc, ev):
     term = '+'.join(str(x) for x in ev.args)
     resp = requests.get("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=&titles=" + term + "&format=json&exsentences=3&redirects").json()
@@ -17,7 +17,7 @@ def wikipedia(irc, ev):
     irc.message(ev.replyto, message + '\n' + flink, p_html=True)
 
 
-@commandHook(['wikisearch'])
+@command_hook(['wikisearch'])
 def wikipediasearch(irc, ev):
     term = '+'.join(str(x) for x in ev.args)
     resp = requests.get("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" + term + "&utf8=&format=json").json()

@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import requests
 
 currs = requests.get('https://www.cryptonator.com/api/currencies').json()
@@ -6,7 +6,7 @@ currencies = {}
 for c in currs['rows']:
     currencies[c['code'].lower()] = c['name']
 
-@commandHook(['crypto'])
+@command_hook(['crypto'])
 def crypto(irc, ev):
     global currencies
     if len(ev.args) < 1:

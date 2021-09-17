@@ -1,6 +1,6 @@
 # ported from jenni :x
 from datetime import datetime, timedelta
-from dors import commandHook, startupHook
+from dors import command_hook, startup_hook
 import re
 import time
 import os
@@ -71,7 +71,7 @@ def dump_database(name, data):
             f.write('{0}\t{1}\t{2}\t{3}\n'.format(unixtime, channel, nick, message).encode('utf-8'))
     f.close()
 
-@startupHook()
+@startup_hook()
 def setup(bot):
     global r_command
     periods = '|'.join(scaling.keys())
@@ -116,7 +116,7 @@ def setup(bot):
     t = threading.Thread(target=monitor, args=targs)
     t.start()
 
-@commandHook(['in'], help="Reminds you of something after X time. Usage: in <time> <something>. Example: in 10 mins clean microwave")
+@command_hook(['in'], help="Reminds you of something after X time. Usage: in <time> <something>. Example: in 10 mins clean microwave")
 def remind(bot, event):
     m = r_command.match(event.message)
     if not m:

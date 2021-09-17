@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import requests
 import urllib.parse
 import re
@@ -7,7 +7,7 @@ import pycountry
 import html
 
 
-@commandHook(['google', 'g'])
+@command_hook(['google', 'g'])
 def google(cli, event):
     if len(event.args) > 0:
         stext = urllib.parse.quote_plus(" ".join(event.args))

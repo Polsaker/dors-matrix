@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from dors import commandHook
+from dors import command_hook
 import urllib.parse
 import http.client
 import urllib.request
 import urllib.error
 import json
 
-@commandHook(['ip'], help="Locates a IP address.")
+@command_hook(['ip'], help="Locates a IP address.")
 def ipaddr(irc, ev):
     if not ev.args:
         return irc.reply("Usage: ip <ip address>")

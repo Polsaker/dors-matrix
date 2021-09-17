@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import random
 import itertools
 import codecs
@@ -9,7 +9,7 @@ def write_quote(quote):
     fn.write('\n')
     fn.close()
 
-@commandHook('addquote', help=".addquote <nick> something they said -- Adds the quote to the quote database.")
+@command_hook('addquote', help=".addquote <nick> something they said -- Adds the quote to the quote database.")
 def addquote(irc, ev):
     if not ev.text:
         return irc.message(ev.replyto, "No quote provided.")
@@ -17,7 +17,7 @@ def addquote(irc, ev):
     write_quote(ev.text)
     irc.message(ev.replyto, "Quote added.")
 
-@commandHook('quote', help=".quote [nick|numer] - Displays a given quote or a random one if no parameter is specified.")
+@command_hook('quote', help=".quote [nick|numer] - Displays a given quote or a random one if no parameter is specified.")
 def quote(irc, ev):
     try:
         param = ev.args[0]
@@ -70,7 +70,7 @@ def quote(irc, ev):
         else:
             irc.message(ev.replyto, "There are currently no quotes saved.")
 
-@commandHook(['delquote', 'rmquote'], help=".delquote <number> -- Deletes a quote from the quote database.")
+@command_hook(['delquote', 'rmquote'], help=".delquote <number> -- Deletes a quote from the quote database.")
 def delquote(irc, ev):
     if not irc.isadmin(ev.source):
         return
@@ -115,7 +115,7 @@ def delquote(irc, ev):
     irc.message(ev.replyto, 'Successfully deleted quote \002{0}\002.'.format(number))
 
 
-@commandHook(['grab', 'grabquote'], help=".grab <nick> -- Creates a quote with the last line <nick> sent to the channel.")
+@command_hook(['grab', 'grabquote'], help=".grab <nick> -- Creates a quote with the last line <nick> sent to the channel.")
 def grab(irc, ev):
     find = irc.get_plugin('find')
     

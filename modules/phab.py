@@ -1,4 +1,4 @@
-from dors import stuffHook, startupHook
+from dors import message_hook, startup_hook
 import re
 import traceback
 import requests
@@ -13,7 +13,7 @@ case2 = re.compile(r'(?<![/:#-])(?:^|\b)(r[A-Z]+)([0-9a-z]{0,40})(?:\b|$)')
 oldies = {}
 poll_last_seen_chrono_key = 0
 
-@stuffHook('.*')
+@message_hook('.*')
 def handle_phabs(irc, ev):
     paste_ids = []
     commit_names = []
@@ -106,7 +106,7 @@ def handle_phabs(irc, ev):
         irc.message(ev.target, '\n'.join(defout))
 
 
-@startupHook()
+@startup_hook()
 def onstart(bot):
     while True:
         try:

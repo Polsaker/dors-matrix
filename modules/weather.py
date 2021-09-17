@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import config
 import requests
 import datetime
@@ -77,7 +77,7 @@ def getForecast(weather, day):
     reply += " Min temp: {0}\u00B0C ({1}\u00B0F). ".format(mitemp, mitemp_f)
     return reply
 
-@commandHook(['weather', 'wx', 'w'], help="Shows the weather for a given location. Usage: weather <location>")
+@command_hook(['weather', 'wx', 'w'], help="Shows the weather for a given location. Usage: weather <location>")
 def weather(irc, ev):
     if not ev.args:
         return irc.message(ev.replyto, "Usage: weather <location>")

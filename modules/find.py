@@ -1,4 +1,4 @@
-from dors import stuffHook, startupHook
+from dors import message_hook, startup_hook
 import time
 import sqlite3
 import re
@@ -48,14 +48,14 @@ def save_db(search_dict):
                 c.execute("INSERT INTO find VALUES (?,?,?,?)", (x, y, z[0], z[1]))
         conn.commit()
 
-@startupHook()
+@startup_hook()
 def startup(irc):
     irc.recent_lines = load_db()
     while True:
         time.sleep(60)
         save_db(irc.recent_lines)
 
-@stuffHook(".+")
+@message_hook(".+")
 def collectlines(irc, ev):        
     channel = ev.target.lower()
     nick = str(ev.source).lower()
@@ -79,7 +79,7 @@ def collectlines(irc, ev):
     del templist[:-10]
     irc.recent_lines[channel][nick] = templist
 
-@stuffHook('(?iu)(?:([^\s:,]+)[\s:,])?\s*s\s*([^\s\w.:-])(.*)')
+@message_hook('(?iu)(?:([^\s:,]+)[\s:,])?\s*s\s*([^\s\w.:-])(.*)')
 def findandreplace(irc, ev):
     channel = ev.target.lower()
     nick = ev.source.lower()

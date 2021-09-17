@@ -1,8 +1,8 @@
-from dors import commandHook
+from dors import command_hook
 import requests
 
 
-@commandHook(['ticker'])
+@command_hook(['ticker'])
 def ticker(irc, ev):
     try:
         coin = ev.args[0]

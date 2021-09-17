@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import twitter
 import config
 from datetime import datetime
@@ -34,7 +34,7 @@ def getUser(screenname):
         return False
 
 
-@commandHook(['twitter'])
+@command_hook(['twitter'])
 def twitterUser(bot, ev):
     if len(ev.args) == 0:
         return bot.say('Usage: .twitter <status ID|@user>')

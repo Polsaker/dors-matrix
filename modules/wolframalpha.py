@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import wolframalpha
 import config
 import re
@@ -12,7 +12,7 @@ def fixaroo(m):
     return chr(int(txt, 16))
 
 
-@commandHook(['wolframalpha', 'wa'], help=".wa <input> -- sends input to wolframalpha and returns results")
+@command_hook(['wolframalpha', 'wa'], help=".wa <input> -- sends input to wolframalpha and returns results")
 def wolframalpha(irc, ev):
     irc.send_typing(ev.target, 10000, True)
     try:

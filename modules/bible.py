@@ -1,26 +1,29 @@
-from dors import commandHook
+from nio import MatrixRoom
+
+from dors import command_hook, Jenny, HookMessage
 import requests
 
 
-@commandHook(['bible', 'Bible'])
-def bible(irc, ev):
-    verse = ev.args[0] + '%20' + ev.args[1]
-    i = requests.get('http://labs.bible.org/api/?passage=' + verse + '&type=json').json()
+@command_hook(['bible'])
+async def bible(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    verse = event.args[0] + '%20' + event.args[1]
+    # TODO: USE ASYNC!
+    i = requests.get('https://labs.bible.org/api/?passage=' + verse + '&type=json').json()
     res = ''
     for v in i:
         res += " {0}: {1}".format(v['verse'], v['text'])
     resp = "{0}".format(res)
 
     if len(resp) > 370:
-        resp = resp[:370] + '... >> http://labs.bible.org/api/?passage=' + verse
+        resp = resp[:370] + '... >> https://labs.bible.org/api/?passage=' + verse
 
-    irc.message(ev.replyto, resp[1:])
+    await bot.message(room.room_id, resp[1:])
 
 
-@commandHook(['quran', 'Quran'])
-def quran(irc, ev):
-    verse = ev.args[0]
-    i = requests.get('http://api.alquran.cloud/ayah/' + verse + '/en.asad').json()
+@command_hook(['quran', 'Quran'])
+async def quran(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    verse = event.args[0]
+    i = requests.get('https://api.alquran.cloud/ayah/' + verse + '/en.asad').json()
     if i['code'] == 200:
         resp = "{0}".format(i['data']['text'])
     else:
@@ -28,4 +31,4 @@ def quran(irc, ev):
     if len(resp) > 370:
         resp = resp[:370] + '...'
 
-    irc.message(ev.replyto, resp)
+    await bot.message(room.room_id, resp)

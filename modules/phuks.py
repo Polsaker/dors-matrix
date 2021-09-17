@@ -2,7 +2,7 @@ import requests
 import datetime
 from babel.dates import format_timedelta
 import time
-from dors import commandHook
+from dors import command_hook
 
 
 def get_user(name):
@@ -50,7 +50,7 @@ def get_sub(name):
     return resp
 
 
-@commandHook(['user'])
+@command_hook(['user'])
 def phukuser(irc, ev):
     if not ev.args:
         return irc.reply("Usage: user <username>")
@@ -58,7 +58,7 @@ def phukuser(irc, ev):
     irc.message(ev.replyto, get_user(ev.args[0]))
 
 
-@commandHook(['sub'])
+@command_hook(['sub'])
 def phuksub(irc, ev):
     if not ev.args:
         return irc.reply("Usage: sub <subname>")

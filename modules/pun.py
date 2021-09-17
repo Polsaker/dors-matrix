@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import re
 import requests
 
@@ -6,7 +6,7 @@ import requests
 
 exp = re.compile(r'<div class="dropshadow1">\n<p>(.*?)</p>\n</div>')
 
-@commandHook(['pun', 'badpun'], help="Gives a bad pun.")
+@command_hook(['pun', 'badpun'], help="Gives a bad pun.")
 def puns(irc, event):
     url = 'http://www.punoftheday.com/cgi-bin/randompun.pl'
     page = requests.get(url).content.decode()

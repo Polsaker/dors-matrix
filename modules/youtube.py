@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import re
 import requests
 import config
@@ -47,7 +47,7 @@ def fetchUrl(url):
     
     
 
-@commandHook(['youtube', 'yt'], help="Fetches youtube video")
+@command_hook(['youtube', 'yt'], help="Fetches youtube video")
 def youtube(bot, ev):
     if len(ev.args) == 0:
         return bot.say("Usage: .yt <some text>")

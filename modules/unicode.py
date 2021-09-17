@@ -1,7 +1,7 @@
-from dors import commandHook
+from dors import command_hook
 import unicodedata
 
-@commandHook(['u'], help="Looks up a unicode character (10 maximum). Usage: u <character>")
+@command_hook(['u'], help="Looks up a unicode character (10 maximum). Usage: u <character>")
 def u(irc, ev):
     if not ev.args:
         return irc.reply("Usage: u <character>")
@@ -20,7 +20,7 @@ def u(irc, ev):
     
     irc.say(reply)
 
-@commandHook(['sc'])
+@command_hook(['sc'])
 def supercombiner(bot, ev):
     """.sc -- displays the infamous supercombiner"""
     # ported from jenni

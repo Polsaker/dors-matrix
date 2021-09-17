@@ -1,4 +1,4 @@
-from dors import commandHook
+from dors import command_hook
 import requests
 import math
 
@@ -25,12 +25,12 @@ resultsym = {'USD':'$', 'EUR':'€', 'GBP':'£', 'AUD':'A$', 'CAD':'C$',
              'BTC':'฿', 'LTC':'Ł', 'DOGE':'Ð', 'ETH':'Ξ'}
 
 
-@commandHook(['fees'])
+@command_hook(['fees'])
 def bitfee(irc, ev):
     coinPrice(irc, 'bitcoin', 1, False, True)
 
 
-@commandHook(['bit', 'bits'])
+@command_hook(['bit', 'bits'])
 def bit(irc, ev):
     try:
         bits = float(ev.args[0].replace('k', ''))
@@ -49,7 +49,7 @@ def bit(irc, ev):
     irc.message(ev.replyto, ev.source + ": " + message)    
 
 
-@commandHook(['bitcoin', 'btc'])
+@command_hook(['bitcoin', 'btc'])
 def btc(irc, ev):
     tick = True
     try:
@@ -65,7 +65,7 @@ def btc(irc, ev):
     coinPrice(irc, 'bitcoin', bitcoin, tick)
 
 
-@commandHook(['litecoin', 'ltc'])
+@command_hook(['litecoin', 'ltc'])
 def ltc(irc, ev):
     tick = True
     try:
@@ -83,7 +83,7 @@ def ltc(irc, ev):
     coinPrice(irc, 'litecoin', bitcoin, tick)
 
 
-@commandHook(['dogecoin', 'doge'])
+@command_hook(['dogecoin', 'doge'])
 def doge(irc, ev):
     tick = True
     try:
@@ -101,7 +101,7 @@ def doge(irc, ev):
     coinPrice(irc, 'dogecoin', dogecoin, tick)
 
 
-@commandHook(['monero', 'xmr'])
+@command_hook(['monero', 'xmr'])
 def xmr(irc, ev):
     try:
         monero = float(ev.args[0])
@@ -111,7 +111,7 @@ def xmr(irc, ev):
     coinPrice(irc, 'monero', monero)
 
 
-@commandHook(['ethereum', 'eth'])
+@command_hook(['ethereum', 'eth'])
 def eth(irc, ev):
     try:
         ethereum = float(ev.args[0])
@@ -121,7 +121,7 @@ def eth(irc, ev):
     coinPrice(irc, 'ethereum', ethereum)
 
 
-@commandHook(['mysterium', 'myst'])
+@command_hook(['mysterium', 'myst'])
 def myst(irc, ev):
     try:
         mysterium = float(ev.args[0])
@@ -131,7 +131,7 @@ def myst(irc, ev):
     coinPrice(irc, 'mysterium', mysterium)
 
     
-@commandHook(['omisego', 'omg'])
+@command_hook(['omisego', 'omg'])
 def omg(irc, ev):
     try:
         omg = float(ev.args[0])
@@ -141,7 +141,7 @@ def omg(irc, ev):
     coinPrice(irc, 'omisego', omg)
 
 
-@commandHook(['bitcoin-cash', 'bch'])
+@command_hook(['bitcoin-cash', 'bch'])
 def bch(irc, ev):
     try:
         bch = float(ev.args[0])
@@ -158,7 +158,7 @@ def prettify(thing):
         return "\00304" + str(thing) + "\003"
 
 
-@commandHook(['coin'])
+@command_hook(['coin'])
 def coin(irc, ev):
     try:
         coin = coinmap.get(ev.args[0].lower(), ev.args[0])
@@ -203,7 +203,7 @@ def coinPrice(irc, coin, amount, tick=True, bitfee=False):
     irc.reply(message + '.') 
 
 
-@commandHook(['coins'], help='.coins <convertTo:optional> -- get coin price and daily/weekly percent change.')
+@command_hook(['coins'], help='.coins <convertTo:optional> -- get coin price and daily/weekly percent change.')
 def coins(irc, ev):
     msg = ''
     coins = ['BTC','LTC','ETH','BCH','DOGE','XMR','OMG', 'MYST'] # show info for these ticker symbols
@@ -241,7 +241,7 @@ def coins(irc, ev):
     irc.message(ev.replyto, msg)
 
 
-@commandHook(['coins2'], help='.coins2 <convertTo:optional> -- get coin prices and convert to fiat or cryptos.')
+@command_hook(['coins2'], help='.coins2 <convertTo:optional> -- get coin prices and convert to fiat or cryptos.')
 def coins2(irc, ev):
     msg = ''
     coins = 'BTC,BCH,LTC,DOGE,ETH,XMR,MYST,OMG' # get info for these ticker symbols

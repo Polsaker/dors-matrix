@@ -1,4 +1,4 @@
-from dors import stuffHook
+from dors import message_hook
 import config
 import re
 import urllib.request, urllib.error, urllib.parse
@@ -196,7 +196,7 @@ def get_results(text, irc, manual=False):
     return display
 
 
-@stuffHook('(?iu).*(\!?(http|https)(://\S+)).*')
+@message_hook('(?iu).*(\!?(http|https)(://\S+)).*')
 def show_title_auto(irc, ev):
     try:
         results = get_results(ev.message, irc)
