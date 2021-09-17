@@ -1,4 +1,6 @@
-from dors import command_hook
+from nio import MatrixRoom
+
+from dors import command_hook, HookMessage, Jenny
 import wolframalpha
 import config
 import re
@@ -13,17 +15,17 @@ def fixaroo(m):
 
 
 @command_hook(['wolframalpha', 'wa'], help=".wa <input> -- sends input to wolframalpha and returns results")
-def wolframalpha(irc, ev):
-    irc.send_typing(ev.target, 10000, True)
+async def wolframalpha(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    await bot.room_typing(room.room_id, True, 10000)
     try:
-        res = client.query(ev.text, units='metric')
+        res = client.query(" ".join(event.args), units='metric')
     except:
-        return irc.message(ev.replyto, "Error while querying WolframAlpha")
+        return await bot.say("Error while querying WolframAlpha")
 
     try:
         pods = [x for x in res]
     except:
-        return irc.message(ev.replyto, "No fucking idea.")
+        return await bot.say("No fucking idea.")
 
     txtpods = []
     for i in range(0, len(pods)):
@@ -34,7 +36,7 @@ def wolframalpha(irc, ev):
         except:
             pass
 
-    irc.send_typing(ev.target, 10000, False)
+    await bot.room_typing(room.room_id, False)
     # txtpods = [x.text if x.text else "" for x in pods[:3]]
     # prettifying
     txtpods = [": ".join([l.strip() for l in x.split(" | ")]) for x in txtpods]
@@ -48,4 +50,4 @@ def wolframalpha(irc, ev):
     if len(resp) > 400:
         resp = resp[:400] + "…"
     
-    irc.message(ev.replyto, resp)
+    await bot.say(resp)

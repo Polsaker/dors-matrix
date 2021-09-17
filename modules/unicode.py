@@ -1,14 +1,17 @@
-from dors import command_hook
+from nio import MatrixRoom
+
+from dors import command_hook, Jenny, HookMessage
 import unicodedata
 
+
 @command_hook(['u'], help="Looks up a unicode character (10 maximum). Usage: u <character>")
-def u(irc, ev):
-    if not ev.args:
-        return irc.reply("Usage: u <character>")
+async def u(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    if not event.args:
+        return await bot.reply("Usage: u <character>")
     
-    chars = ev.args[0]
+    chars = event.args[0]
     if len(chars) > 10:
-        return irc.reply("Sorry, your input is too long! The maximum is 6 characters")
+        return await bot.reply("Sorry, your input is too long! The maximum is 6 characters")
     
     reply = ""
     for char in chars:
@@ -18,10 +21,11 @@ def u(irc, ev):
             name = "No name found"
         reply += "U+{0:04X} {1} ({2}) ".format(ord(char), name, char)
     
-    irc.say(reply)
+    await bot.say(reply)
+
 
 @command_hook(['sc'])
-def supercombiner(bot, ev):
+async def supercombiner(bot: Jenny, room: MatrixRoom, event: HookMessage):
     """.sc -- displays the infamous supercombiner"""
     # ported from jenni
     s = 'u'
@@ -30,4 +34,4 @@ def supercombiner(bot, ev):
             s += chr(i)
         if len(s) > 100:
             break
-    bot.say(s)
+    await bot.say(s)

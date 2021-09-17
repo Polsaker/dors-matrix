@@ -1,36 +1,40 @@
-from dors import command_hook
+from nio import MatrixRoom
+
+from dors import command_hook, Jenny, HookMessage
 import config
 import requests
 import datetime
 
 dotw = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+
 def wind_dir(degrees):
-    '''Provide a nice little unicode character of the wind direction'''
+    """Provide a nice little unicode character of the wind direction"""
     # Taken from jenni
     if degrees == 'VRB':
-        degrees = '\u21BB' # ↻
+        degrees = '\u21BB'  # ↻
     elif (degrees <= 22.5) or (degrees > 337.5):
-        degrees = '\u2B06' # ⬆
+        degrees = '\u2B06'  # ⬆
     elif (degrees > 22.5) and (degrees <= 67.5):
-        degrees = '\u2197' # ↗
+        degrees = '\u2197'  # ↗
     elif (degrees > 67.5) and (degrees <= 112.5):
-        degrees = '\u27A1' # →
+        degrees = '\u27A1'  # →
     elif (degrees > 112.5) and (degrees <= 157.5):
-        degrees = '\u2198' # ↘
+        degrees = '\u2198'  # ↘
     elif (degrees > 157.5) and (degrees <= 202.5):
-        degrees = '\u2B07' # ⬇
+        degrees = '\u2B07'  # ⬇
     elif (degrees > 202.5) and (degrees <= 247.5):
-        degrees = '\u2199' # ↙
+        degrees = '\u2199'  # ↙
     elif (degrees > 247.5) and (degrees <= 292.5):
-        degrees = '\u2B05' # ←
+        degrees = '\u2B05'  # ←
     elif (degrees > 292.5) and (degrees <= 337.5):
-        degrees = '\u2196' # ↖ 
+        degrees = '\u2196'  # ↖
 
     return degrees
-    
+
+
 def speed_desc(speed):
-    '''Provide a more natural description of wind speed'''
+    """Provide a more natural description of wind speed"""
     # taken from jennifer
 
     if speed < 1:
@@ -57,39 +61,54 @@ def speed_desc(speed):
         description = 'Storm'
     elif speed < 64:
         description = 'Violent storm'
-    else: description = 'Hurricane'
+    else:
+        description = '\002\00305FUCKING HURRICANE\003\002'
 
     return description
 
 
-def getForecast(weather, day):
-    cond = weather['daily']['data'][day]['icon'].replace('-', ' ').title()
-    cond = cond.replace('Day', '').replace('Night', '')
+def weather_desc(condition):
+    emoji = ''
+    if condition == "Rain":
+        emoji = "🌧️ "
+    elif condition == "Partly Cloudy Day":
+        emoji = "🌥️ "
+    elif condition == "Cloudy":
+        emoji = "☁️ "
+    elif condition in ("Clear Day", "Clear"):
+        emoji = "🌞 "
 
-    matemp = weather['daily']['data'][day]['temperatureMax']
-    mitemp = weather['daily']['data'][day]['temperatureMin']
+    return f"{emoji}\002{condition}\002"
+
+
+def get_forecast(weather_obj, day):
+    cond = weather_obj['daily']['data'][day]['icon'].replace('-', ' ').title().strip()
+
+    matemp = weather_obj['daily']['data'][day]['temperatureMax']
+    mitemp = weather_obj['daily']['data'][day]['temperatureMin']
     matemp_f = round(matemp * 1.8 + 32)
     mitemp_f = round(mitemp * 1.8 + 32)
-    dotw_day = datetime.datetime.fromtimestamp(weather['daily']['data'][day]['time']).weekday()
-    reply = '\x0310\x02\x1F{0}\x1F\x02\x03: '.format(dotw[dotw_day])
+    dotw_day = datetime.datetime.fromtimestamp(weather_obj['daily']['data'][day]['time']).weekday()
+    reply = '<li>\x0310\x02\x1F{0}\x1F\x02\x03: '.format(dotw[dotw_day] if day > 0 else 'Today')
 
-    reply += "\002{0}\002 - Max temp: {1}\u00B0C ({2}\u00B0F)".format(cond, matemp, matemp_f)
-    reply += " Min temp: {0}\u00B0C ({1}\u00B0F). ".format(mitemp, mitemp_f)
+    reply += f"{weather_desc(cond)} - Max temp: {matemp}\u00B0C ({matemp_f}\u00B0F)"
+    reply += " Min temp: {0}\u00B0C ({1}\u00B0F).</li>".format(mitemp, mitemp_f)
     return reply
 
+
 @command_hook(['weather', 'wx', 'w'], help="Shows the weather for a given location. Usage: weather <location>")
-def weather(irc, ev):
-    if not ev.args:
-        return irc.message(ev.replyto, "Usage: weather <location>")
-    location = " ".join(ev.args)
+async def weather(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    if not event.args:
+        return await bot.say("Usage: weather <location>")
+    location = " ".join(event.args)
     
     coords = requests.get('https://maps.googleapis.com/maps/api/geocode/json?address={0}&key={1}'
                           .format(location, config.google_apikey)).json()
     
     if coords['status'] == 'ZERO_RESULTS':
-        return irc.message(ev.replyto, "Found zero results for \002{0}\002".format(location))
+        return await bot.say("Found zero results for \002{0}\002".format(location))
     elif coords['status'] != 'OK':
-        return irc.message(ev.replyto, "Unknown error.")
+        return await bot.say("Unknown error.")
     
     location = coords['results'][0]['formatted_address']
     latitude = coords['results'][0]['geometry']['location']['lat']
@@ -98,16 +117,16 @@ def weather(irc, ev):
                            .format(config.darksky_apikey, latitude, longitude)).json()
     
     # currently
-    cond = weather['currently']['icon'].replace('-', ' ').title()
-    cond = cond.replace('Day', '').replace('Night', '')
-    reply = "Weather on \00310\002{0}\002\003: \002{1}\002; ".format(location, cond)
+    cond = weather['currently']['icon'].replace('-', ' ').title().strip()
+
+    reply = "Weather on \00310\002{0}\002\003: \002{1}\002: ".format(location, weather_desc(cond))
     temp = weather['currently']['temperature']
     aptemp = weather['currently']['apparentTemperature']
     temp_f = round(weather['currently']['temperature'] * 1.8 + 32)
     aptemp_f = round(weather['currently']['apparentTemperature'] * 1.8 + 32)
     reply += "\002{0}\u00B0C\002 (\002{1}\u00B0F\002)".format(temp, temp_f)
     if temp != aptemp:
-        reply += " [feels like {0}\u00B0C ({1}\u00B0F)".format(aptemp, aptemp_f)
+        reply += " [feels like {0}\u00B0C ({1}\u00B0F)]".format(aptemp, aptemp_f)
     
     pressure = weather['currently']['pressure']
     humidity = weather['currently']['humidity']
@@ -123,7 +142,10 @@ def weather(irc, ev):
 
     reply += ", wind: \002{0}\002 {1}kmh ({2}mph) ({3}). ".format(description, speed, round(speed_mph), degrees)
 
-    reply += " Forecast: {0}".format(getForecast(weather, 0))
-    reply += getForecast(weather, 1)
-    reply += getForecast(weather, 2)
-    irc.say(reply)
+    reply += " \n\nForecast: <ul>"
+    reply += get_forecast(weather, 0)
+    reply += get_forecast(weather, 1)
+    reply += get_forecast(weather, 2)
+    reply += get_forecast(weather, 3)
+    reply += "</ul>"
+    await bot.message(room.room_id, reply, p_html=True)
