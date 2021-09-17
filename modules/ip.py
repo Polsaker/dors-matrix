@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
-from dors import command_hook
+from nio import MatrixRoom
+
+from dors import command_hook, Jenny, HookMessage
 import urllib.parse
 import http.client
 import urllib.request
 import urllib.error
 import json
 
+
 @command_hook(['ip'], help="Locates a IP address.")
-def ipaddr(irc, ev):
-    if not ev.args:
-        return irc.reply("Usage: ip <ip address>")
+async def ipaddr(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    if not event.args:
+        return await bot.reply("Usage: ip <ip address>")
     
-    text = urllib.parse.quote(ev.args[0])
+    text = urllib.parse.quote(event.args[0])
     conn = http.client.HTTPConnection("ip-api.com")
     conn.request("GET", "/json/{0}?fields=65535".format(text))
     res = conn.getresponse().read().decode('utf-8')
@@ -34,7 +37,7 @@ def ipaddr(irc, ev):
             resp += "\2ASN\2: {0}, ".format(data['as'])
         if data['timezone'] != "":
             resp += "\2Timezone\2: {0}, ".format(data['timezone'])
-        irc.say(resp[0:len(resp)-2])
+        await bot.say(resp[0:len(resp)-2])
     else:
-        irc.say("\00304Error\003: Couldn't process that IP")
+        await bot.say("\00304Error\003: Couldn't process that IP")
 

@@ -284,6 +284,7 @@ class Jenny(AsyncClient):
             message = re.sub('\002(.*?)\002', '<b>\\1</b>', message)
             message = re.sub('\x1f(.*?)\x1f', '<u>\\1</u>', message)
             message = re.sub('\x1d(.*?)\x1d', '<i>\\1</i>', message)
+            message = message.replace("\n\n", "<br/>")
 
             def replcolor(m):
                 return '<font color="{0}">{1}</font>'.format(IRC_COLOR_MAP[m.group(1)], m.group(3))
@@ -394,7 +395,14 @@ async def run_client(client: Jenny) -> None:
         for admin in config.admins:
             client.trust_devices(admin)
 
-    # TODO: A tasks API here?
+    for hook in client.startup_hooks:
+        try:
+            asyncio.create_task(hook['func'](client))
+        except Exception as e:
+            print(traceback.format_exc())
+            tb = repr(e) + traceback.format_exc().splitlines()[-3]
+            print("Error in {0} module: {1}".format(hook['module'], tb))
+
     after_first_sync_task = asyncio.create_task(after_first_sync())
 
     # We use full_state=True here to pull any room invites that occured or

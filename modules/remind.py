@@ -1,6 +1,11 @@
 # ported from jenni :x
+import asyncio
 from datetime import datetime, timedelta
-from dors import command_hook, startup_hook
+
+from nio import MatrixRoom
+
+import config
+from dors import command_hook, startup_hook, Jenny, HookMessage
 import re
 import time
 import os
@@ -9,7 +14,7 @@ import html
 
 
 rfn = 'remind.db'
-r_command = None
+
 scaling = {
     'years': 365.25 * 24 * 3600,
     'year': 365.25 * 24 * 3600,
@@ -49,6 +54,10 @@ scaling = {
     's': 1
 }
 
+periods = '|'.join(scaling.keys())
+p_command = r'{}in ([0-9]+(?:\.[0-9]+)?)\s?((?:{})\b)?:?\s?(.*)'.format(config.prefix, periods,)
+r_command = re.compile(p_command)
+
 
 def load_database(name):
     data = {}
@@ -64,6 +73,7 @@ def load_database(name):
         f.close()
     return data
 
+
 def dump_database(name, data):
     f = open(name, 'wb')
     for unixtime, reminders in data.items():
@@ -71,20 +81,14 @@ def dump_database(name, data):
             f.write('{0}\t{1}\t{2}\t{3}\n'.format(unixtime, channel, nick, message).encode('utf-8'))
     f.close()
 
-@startup_hook()
-def setup(bot):
-    global r_command
-    periods = '|'.join(scaling.keys())
-    p_command = r'{}in ([0-9]+(?:\.[0-9]+)?)\s?((?:{})\b)?:?\s?(.*)'.format(
-        bot.config.prefix,
-        periods,
-    )
-    r_command = re.compile(p_command)
 
+@startup_hook()
+async def setup(bot: Jenny):
     bot.rdb = load_database('remind.db')
 
-    def monitor(bot):
-        time.sleep(5)
+    async def monitor(bot: Jenny):
+        await asyncio.sleep(5)
+        print(" >> Starting remind loop!")
         while True:
             now = int(time.time())
             unixtimes = [int(key) for key in bot.rdb]
@@ -93,32 +97,32 @@ def setup(bot):
                 for oldtime in oldtimes:
                     for (channel, nick, message) in bot.rdb[oldtime]:
                         try:
-                            source_obj = bot.client.get_user(nick)
-                            mention = '<a href="https://matrix.to/#/{0}">{1}</a>'.format(nick, source_obj.get_display_name())
+                            mention = await bot.source_tag(nick)
                         except:
                             mention = nick
                         if message:
                             try:
-                                bot.message(channel, mention + ': ' + html.escape(message), p_html=True, message_type='m.text')
+                                await bot.message(channel, mention + ': ' + html.escape(message),
+                                                  p_html=True, message_type='m.text')
                             except:
                                 pass
                         else:
                             try:
-                                bot.message(channel, mention + '!', p_html=True, message_type='m.text')
+                                await bot.message(channel, mention + '!', p_html=True, message_type='m.text')
                             except:
                                 pass
                     del bot.rdb[oldtime]
 
                 dump_database(rfn, bot.rdb)
-            time.sleep(2.5)
+            await asyncio.sleep(2.5)
 
-    targs = (bot,)
-    t = threading.Thread(target=monitor, args=targs)
-    t.start()
+    await monitor(bot)
 
-@command_hook(['in'], help="Reminds you of something after X time. Usage: in <time> <something>. Example: in 10 mins clean microwave")
-def remind(bot, event):
-    m = r_command.match(event.message)
+
+@command_hook(['in'], help="Reminds you of something after X time. Usage: in <time> <something>. "
+                           "Example: in 10 mins clean microwave")
+async def remind(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    m = r_command.match(event.body)
     if not m:
         return bot.reply("Sorry, didn't understand the input.")
     length, scale, message = m.groups()
@@ -129,14 +133,17 @@ def remind(bot, event):
 
     if duration % 1:
         duration = int(duration) + 1
-    else: duration = int(duration)
+    else:
+        duration = int(duration)
 
     t = int(time.time()) + duration
     message += ' | Set on: ' + str(datetime.now().isoformat())
-    reminder = (event.replyto, event.source, message)
+    reminder = (room.room_id, event.sender, message)
 
-    try: bot.rdb[t].append(reminder)
-    except KeyError: bot.rdb[t] = [reminder]
+    try:
+        bot.rdb[t].append(reminder)
+    except KeyError:
+        bot.rdb[t] = [reminder]
 
     dump_database(rfn, bot.rdb)
 
@@ -146,7 +153,9 @@ def remind(bot, event):
             if duration >= 3600 * 12:
                 w += time.strftime(' on %d %b %Y', time.gmtime(t))
             w += time.strftime(' at %H:%MZ', time.gmtime(t))
-            bot.reply('Okay, will remind%s' % w)
+            await bot.reply('Okay, will remind%s' % w)
         except:
-            bot.reply('Please enter a more realistic time-frame.')
-    else: bot.reply('Okay, will remind in %s secs' % duration)
+            await bot.reply('Please enter a more realistic time-frame.')
+    else:
+        await bot.reply(f'Okay, will remind in {duration} secs')
+
