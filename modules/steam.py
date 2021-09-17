@@ -12,7 +12,11 @@ ts_apps = {}
 
 
 @startup_hook()
-def updateapps(irc: Optional[Jenny]):
+async def on_start(bot):
+    updateapps()
+
+
+def updateapps():
     global ts_steam, ts_apps
     search1 = requests.get("https://api.steampowered.com/ISteamApps/GetAppList/v2/").json()
 
@@ -22,9 +26,6 @@ def updateapps(irc: Optional[Jenny]):
     
     ts_steam = time.time()
     ts_apps = applist
-
-
-updateapps(None)
 
 
 @command_hook(['steam', 'game'], help="Returns game info from Steam.")
