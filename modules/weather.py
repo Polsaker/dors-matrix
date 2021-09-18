@@ -84,8 +84,8 @@ def weather_desc(condition):
 def get_forecast(weather_obj, day):
     cond = weather_obj['daily']['data'][day]['icon'].replace('-', ' ').title().strip()
 
-    matemp = weather_obj['daily']['data'][day]['temperatureMax']
-    mitemp = weather_obj['daily']['data'][day]['temperatureMin']
+    matemp = round(weather_obj['daily']['data'][day]['temperatureMax'], 1)
+    mitemp = round(weather_obj['daily']['data'][day]['temperatureMin'], 1)
     matemp_f = round(matemp * 1.8 + 32)
     mitemp_f = round(mitemp * 1.8 + 32)
     dotw_day = datetime.datetime.fromtimestamp(weather_obj['daily']['data'][day]['time']).weekday()
