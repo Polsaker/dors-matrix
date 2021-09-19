@@ -254,7 +254,7 @@ def get_forecast(data):
     return reply
 
 
-@command_hook('w2')
+@command_hook(['weather', 'wx', 'w'])
 async def weather2(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if not event.args:
         return await bot.say("Usage: weather <location>")
