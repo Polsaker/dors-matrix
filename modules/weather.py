@@ -249,7 +249,7 @@ def get_forecast(data):
     dotw_day = dotw[dotw_day] if dotw_day != dotw_now else "Today"
     reply = f"\x0310\x02\x1F{dotw_day}\x1F\x02\x03: <b>{get_conditions(data['weather'], False, None)}</b>. "
     reply += f"Min temp: {get_c(data['temp']['min'])} ({get_f(data['temp']['min'])}). "
-    reply += f"Min temp: {get_c(data['temp']['max'])} ({get_f(data['temp']['max'])}). "
+    reply += f"Max temp: {get_c(data['temp']['max'])} ({get_f(data['temp']['max'])}). "
     reply += f"Humidity: <b>{data['humidity']}</b>%. UV Index: {get_uvi(data['uvi'])}."
     return reply
 
