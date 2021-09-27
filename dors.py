@@ -305,7 +305,7 @@ class Jenny(AsyncClient):
     async def html_message(self, target, message, message_type='m.notice'):
         stripped = re.sub('<[^<]+?>', '', html.unescape(message))
 
-        await self.room_send(
+        return await self.room_send(
             room_id=target,
             message_type="m.room.message",
             content={
