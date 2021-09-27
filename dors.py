@@ -292,7 +292,7 @@ class Jenny(AsyncClient):
             message = re.sub(r'\003(\d{1,2})(?:,(\d{1,2}))?(.*?)\003', replcolor, message)
             return await self.html_message(target, message, message_type)
 
-        await self.room_send(
+        return await self.room_send(
             room_id=target,
             message_type="m.room.message",
             content={
