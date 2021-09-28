@@ -50,7 +50,7 @@ async def price_convert(irc: Jenny, amount, coinin, coinout):
     message = ""
     info = requests.get("https://min-api.cryptocompare.com/data/price?fsym=" + coinin + "&tsyms=" + coinout).json()
     if 'Error' in str(info):
-        return irc.reply(info['Message'])
+        return await irc.reply(info['Message'])
     info = round(float(info[coinout]) * amount, 8)
     if coinout in ("BTC", 'ETH'):
         message += "\002{0}\002 \002{1}\002 => \002{2:.8f}\002 \002{3}\002.".format(amount, coinin, info, coinout)

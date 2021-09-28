@@ -199,14 +199,14 @@ class Jenny(AsyncClient):
             self.verify_device(olm_device)
             print(f"Trusting {device_id} from user {user_id}")
 
-    def cb_autojoin_room(self, room: MatrixRoom, event: InviteEvent):
+    async def cb_autojoin_room(self, room: MatrixRoom, event: InviteEvent):
         """Callback to automatically joins a Matrix room on invite.
 
         Arguments:
             room {MatrixRoom} -- Provided by nio
             event {InviteEvent} -- Provided by nio
         """
-        self.join(room.room_id)
+        await self.join(room.room_id)
 
     async def on_message(self, room: MatrixRoom, event: RoomMessageText):
         """Callback to print all received messages to stdout.
