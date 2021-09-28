@@ -207,8 +207,6 @@ class Jenny(AsyncClient):
             event {InviteEvent} -- Provided by nio
         """
         self.join(room.room_id)
-        room = self.rooms[room.room_id]
-        print(f"Room {room.name} is encrypted: {room.encrypted}" )
 
     async def on_message(self, room: MatrixRoom, event: RoomMessageText):
         """Callback to print all received messages to stdout.
