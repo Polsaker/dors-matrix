@@ -59,8 +59,8 @@ async def take(user: str, amount: float):
 
 async def bulk_take(user_list: List[str], amount: float):
     amount = round(amount, 8)
-    if amount > 0:
-        raise RuntimeError("Positive values are not allowed.")
+    if amount < 0:
+        raise RuntimeError("Negative values are not allowed.")
 
     async with aiosqlite.connect("./balance.db") as db:
         db.row_factory = aiosqlite.Row
