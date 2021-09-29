@@ -102,6 +102,9 @@ class Jenny(AsyncClient):
         self.add_event_callback(self.cb_autojoin_room, InviteEvent)  # noqa
         self.add_event_callback(self.on_message, RoomMessageText)  # noqa
 
+    def get_module(self, module_name: str):
+        return self.plugins[module_name]
+
     def load_module(self, module):
         print("Loading", module)
         themodule = __import__("modules." + module, locals(), globals())
