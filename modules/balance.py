@@ -49,12 +49,12 @@ async def get_balance(user: str) -> float:
 
 async def give(user: str, amount: float):
     """ Give money to a user. """
-    return bulk_give([user], amount)
+    return await bulk_give([user], amount)
 
 
 async def take(user: str, amount: float):
     """ Give take money from a user. """
-    return bulk_take([user], amount)
+    return await bulk_take([user], amount)
 
 
 async def bulk_take(user_list: List[str], amount: float):
