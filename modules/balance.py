@@ -175,7 +175,7 @@ async def __cmd_baltop(bot: Jenny, room: MatrixRoom, event: HookMessage):
         db.row_factory = aiosqlite.Row
         async with db.execute("SELECT SUM(balance) AS `total` FROM balance") as cursor:
             row = await cursor.fetchone()
-            resp += f"Total balance: \002{round(row['total'], 8)}\002 DOGE.\n\nTop 10 balances:<ol>"
+            resp += f"Total balance: \002{round(row['total'], 8)}\002 DOGE.\n\nTop 11 balances:<ol>"
         async with db.execute("SELECT * FROM balance ORDER BY balance DESC") as cursor:
             rows = await cursor.fetchall()
             amt = 0
