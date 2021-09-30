@@ -59,7 +59,7 @@ async def bitfee(bot: Jenny, room: MatrixRoom, event: HookMessage):
         congestion = [float(x) for x in congestion]
         avg_congestion = round((sum(congestion) / len(congestion)) * 100, 2)
         eth_gas = round(((gwei_gas * 21000) / 10 ** 9) * price_usd, 2)
-        erc20_gas = round(((eth_gas * 50000) / 10 ** 9) * price_usd, 2)
+        erc20_gas = round(((gwei_gas * 50000) / 10 ** 9) * price_usd, 2)
         message += f"\n\nEthereum: \002{gwei_gas}\002 Gwei - ETH: $\002{eth_gas}\002 | ERC20: $\002{erc20_gas}\002"
         message += f" - Avg. network congestion: \002{avg_congestion}%\002"
     except RuntimeError:
