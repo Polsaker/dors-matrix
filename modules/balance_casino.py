@@ -49,8 +49,8 @@ async def on_unknown(room: MatrixRoom, event: UnknownEvent):
         # Accepted! Remove reactions and do a countdown.
         await g_bot.room_redact(room.room_id, event.event_id)
 
-        # if event.sender == player_one:
-        #     return
+        if event.sender == player_one:
+            return
 
         if await balance.get_balance(event.sender) < amount:
             return
