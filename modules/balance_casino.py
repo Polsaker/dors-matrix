@@ -109,8 +109,11 @@ async def on_unknown(room: MatrixRoom, event: UnknownEvent):
             await asyncio.sleep(1)
             await g_bot.room_redact(room.room_id, p_react.event_id)
 
-        flip = randomclass.choice([event.sender, player_one])
-        server_seed = randomclass.invalidate()
+        if randomclass.random() < 0.5:
+            flip = event.sender
+        else:
+            flip = player_one
+
         tag = await g_bot.source_tag(flip)
         await g_bot.room_send(room.room_id, 'm.room.message', {
             "body": f"The winner is {flip}! You won \002{amount * 2}\002 DOGE.\n\nGame seed: {server_seed}",  # noqa
