@@ -246,7 +246,7 @@ class Jenny(AsyncClient):
                 self.lastheardfrom[source] = time.time()
                 self.sourcehistory.append(source)
 
-            command = event.body.strip().split()[0].replace(config.prefix, '', 1).strip().lower()
+            command = event.body.replace(config.prefix, '', 1).strip().split()[0].lower()
 
             try:
                 pot = next((item for item in self.command_hooks if command in item['commands']))
