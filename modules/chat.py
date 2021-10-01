@@ -51,7 +51,8 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if event.body.startswith(config.nick):
         text = " ".join(text.split(" ")[1:])
 
-    channel_histories[room.room_id].append(f"{await bot.get_displayname(event.sender)}: {text}")
+    dn = await bot.get_displayname(event.sender)
+    channel_histories[room.room_id].append(f"{dn.displayname}: {text}")
     if len(channel_histories[room.room_id]) > 15:
         channel_histories[room.room_id].pop(0)
 
