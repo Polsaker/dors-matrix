@@ -114,6 +114,8 @@ async def on_unknown(room: MatrixRoom, event: UnknownEvent):
         else:
             flip = player_one
 
+        server_seed = randomclass.invalidate()
+
         tag = await g_bot.source_tag(flip)
         await g_bot.room_send(room.room_id, 'm.room.message', {
             "body": f"The winner is {flip}! You won \002{amount * 2}\002 DOGE.\n\nGame seed: {server_seed}",  # noqa
@@ -137,7 +139,7 @@ async def on_unknown(room: MatrixRoom, event: UnknownEvent):
         await balance.give(flip, amount * 2)
 
 
-@command_hook(['coinflip2', 'flip'])
+@command_hook(['coinflip', 'flip'])
 async def coinflip(bot: Jenny, room: MatrixRoom, event: HookMessage):
     global open_games
     if len(event.args) < 1:
