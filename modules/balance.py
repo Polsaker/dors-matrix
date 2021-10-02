@@ -37,14 +37,14 @@ async def transfer(user_from: str, user_to: str, amount: float) -> bool:
     return True
 
 
-async def get_balance(user: str) -> float:
+async def get_balance(user: str) -> int:
     """ Returns the balance for a user. """
     async with aiosqlite.connect("./balance.db") as db:
         db.row_factory = aiosqlite.Row
         await _create_if_not_exists(db, user)
         async with db.execute("SELECT * FROM balance WHERE username = ?", [user]) as cursor:
             row = await cursor.fetchone()
-            return round(row['balance'], 8)
+            return int(round(row['balance'], 0))
 
 
 async def give(user: str, amount: float):
@@ -191,7 +191,7 @@ async def __cmd_baltop(bot: Jenny, room: MatrixRoom, event: HookMessage):
                     break
                 amt += 1
                 tag = await bot.source_tag(row['username'])
-                resp += f"<li>{tag}: \002{round(row['balance'], 8)}\002 DOGE</li>"
+                resp += f"<li>{tag}: \002{int(round(row['balance'], 0))}\002 DOGE</li>"
         resp += "</ol>"
 
     await bot.message(room.room_id, resp, p_html=True)
