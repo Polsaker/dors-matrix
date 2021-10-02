@@ -153,6 +153,13 @@ async def jackpot(bot: Jenny, room: MatrixRoom, event: HookMessage):
 
     tag = await bot.source_tag(event.sender)
     prv_len = len(game_players[room.room_id])
+
+    # Anti-fuckwit
+    if game_players[room.room_id][event.sender] and amount > 5:
+        max_increase = int(game_players[room.room_id][event.sender] * 1.5)
+        if amount > max_increase:
+            return await bot.reply(f"No. Max you can do is {max_increase}")
+
     game_players[room.room_id][event.sender] += amount
     total_amt = game_players[room.room_id][event.sender]
 
