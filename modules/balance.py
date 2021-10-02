@@ -118,12 +118,14 @@ async def __cmd_tip(bot: Jenny, room: MatrixRoom, event: HookMessage):
         return await bot.say("Usage: .tip <amount> <user>")
 
     try:
-        amount = float(event.args[0])
+        amount_f = float(event.args[0])
+        amount = int(event.args[0])
         user = " ".join(event.args[1:])
     except ValueError:
         # Maybe the first arg is the nick?
         try:
-            amount = float(event.args[-1])
+            amount_f = float(event.args[-1])
+            amount = int(event.args[-1])
             user = " ".join(event.args[0:-1])
         except ValueError:
             return await bot.reply("Invalid amount.")
@@ -131,7 +133,10 @@ async def __cmd_tip(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if amount <= 0:
         return await bot.reply("Invalid amount.")
 
-    if amount < 0.01:
+    if amount != amount_f:
+        return await bot.reply("Invalid amount. Must be a whole number")
+
+    if amount < 1:
         return await bot.reply("Minimum tip is 0.01")
 
     # Find the user...

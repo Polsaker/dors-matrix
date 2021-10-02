@@ -146,11 +146,15 @@ async def coinflip(bot: Jenny, room: MatrixRoom, event: HookMessage):
         return await bot.say("Usage: .coinflip <amount>")
 
     try:
-        amount = float(event.args[0])
+        amount_f = int(event.args[0])
+        amount = int(event.args[0])
     except ValueError:
         return await bot.reply("Invalid amount.")
     if amount < 1:
         return await bot.reply("Minimum amount is 1.")
+
+    if amount != amount_f:
+        return await bot.reply("Bet must be a whole number.")
 
     if event.sender in open_games:
         await bot.say(f"Cancelling previous open game for \002{open_games[event.sender]['amount']}\002 DOGE.")
