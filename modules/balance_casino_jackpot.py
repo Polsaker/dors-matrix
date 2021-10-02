@@ -150,6 +150,12 @@ async def jackpot(bot: Jenny, room: MatrixRoom, event: HookMessage):
     game_players[room.room_id][event.sender] += amount
     total_amt = game_players[room.room_id][event.sender]
 
+    # Anti-sniping
+    if game_start_at.get(room.room_id) and len(game_players[room.room_id]) > 1:
+        time_left = int(time.time()) - game_start_at[room.room_id]
+        if time_left <= 5:
+            return
+
     if len(game_players[room.room_id]) == 1:
         game_randomizers[room.room_id] = ProvablyFair()
         await bot.message(room.room_id, f"{tag} bet \002{total_amt}\002 DOGE and started a game of Jackpot. "
