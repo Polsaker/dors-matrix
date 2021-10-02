@@ -14,6 +14,7 @@ game_players = defaultdict(lambda: defaultdict(int))
 game_start_at = {}
 game_randomizers = {}
 game_started = {}
+game_cap = {}
 
 
 async def start_game(bot: Jenny, room_id):
@@ -115,6 +116,7 @@ async def expire_games(bot: Jenny):
                 del game_players[channel]
                 del game_start_at[channel]
                 del game_started[channel]
+                del game_cap[channel]
             elif ctime == (timestart - 30):
                 await bot.message(channel, "Jackpot game will begin in <b>30 seconds</b>", p_html=True)
             elif ctime == (timestart - 5):
@@ -154,11 +156,8 @@ async def jackpot(bot: Jenny, room: MatrixRoom, event: HookMessage):
     tag = await bot.source_tag(event.sender)
     prv_len = len(game_players[room.room_id])
 
-    # Anti-fuckwit
-    if game_players[room.room_id][event.sender] and amount > 5:
-        max_increase = int(game_players[room.room_id][event.sender] * 1.5)
-        if amount > max_increase:
-            return await bot.reply(f"No. Max you can do is {max_increase}")
+    if game_cap.get(room.room_id) and amount > game_cap[room.room_id]:
+        return await bot.reply(f"Max bet is \002{game_cap[room.room_id]}\002 DOGE")
 
     game_players[room.room_id][event.sender] += amount
     total_amt = game_players[room.room_id][event.sender]
@@ -166,10 +165,11 @@ async def jackpot(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if len(game_players[room.room_id]) == 1:
         game_randomizers[room.room_id] = ProvablyFair()
         await bot.message(room.room_id, f"{tag} bet \002{total_amt}\002 DOGE and started a game of Jackpot. "
-                                        f"To join use .jackpot <amount><br/>Game Hash: "
-                                        f"<code>{game_randomizers[room.room_id].server_seed_hash}</code>",
+                                        f"To join use .jackpot [amount] (Max bet: <b>{amount * 2}</b> DOGE)<br/>"
+                                        f"Game Hash: <code>{game_randomizers[room.room_id].server_seed_hash}</code>",
                           p_html=True)
         game_start_at[room.room_id] = int(time.time() + 60)
+        game_cap[room.room_id] = amount * 2
     else:
         await bot.message(room.room_id, f"{tag} bet \002{total_amt}\002 DOGE and joined the Jackpot game. "
                                         f"To join use .jackpot <amount>",
