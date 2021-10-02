@@ -156,7 +156,8 @@ async def jackpot(bot: Jenny, room: MatrixRoom, event: HookMessage):
     tag = await bot.source_tag(event.sender)
     prv_len = len(game_players[room.room_id])
 
-    if game_cap.get(room.room_id) and amount > game_cap[room.room_id]:
+    temp_amt = game_players[room.room_id][event.sender] + amount
+    if game_cap.get(room.room_id) and temp_amt > game_cap[room.room_id]:
         return await bot.reply(f"Max bet is \002{game_cap[room.room_id]}\002 DOGE")
 
     game_players[room.room_id][event.sender] += amount
