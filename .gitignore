@@ -103,6 +103,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# idea
+.idea/
+
 .token
 config.py
 *.db
+matrix_store/
+credentials.json
+tmp*.png
+*.txt
