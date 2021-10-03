@@ -58,7 +58,7 @@ async def start_game(bot: Jenny, room_id):
         "m.relates_to": {
             "rel_type": "m.annotation",
             "event_id": dat.event_id,
-            "key": f"\U0001FA99"
+            "key": f"\U0001F3B2"
         }
     })
 
