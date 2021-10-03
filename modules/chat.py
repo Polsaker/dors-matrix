@@ -63,8 +63,11 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
         return
 
     await bot.room_read_markers(room.room_id, event.event_id, event.event_id)
-    await bot.room_typing(room.room_id, True, 10000)
+    await send_chat_msg(bot, room)
 
+
+async def send_chat_msg(bot: Jenny, room: MatrixRoom):
+    await bot.room_typing(room.room_id, True, 10000)
     prompt = f"{config.prompt}\n\n"
     prompt += "\n".join(channel_histories[room.room_id])
     prompt += "\nJenny: "
@@ -88,6 +91,8 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
         channel_histories[room.room_id].pop(0)
 
     await bot.message(room.room_id, reply)
+    if random.randint(0, 10) == 0:
+        await send_chat_msg(bot, room)
 
 
 def fchannels():
