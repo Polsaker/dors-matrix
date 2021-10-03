@@ -110,6 +110,7 @@ async def expire_games(bot: Jenny):
 
                     del game_players[channel]
                     del game_start_at[channel]
+                    del game_cap[channel]
                     await bot.message(channel, "Jackpot game cancelled - expired.")
                     continue
                 await start_game(bot, channel)
