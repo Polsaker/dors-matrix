@@ -67,7 +67,7 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
 
     prompt = f"{config.prompt}\n\n"
     prompt += "\n".join(channel_histories[room.room_id])
-    prompt += "\nJenny:"
+    prompt += "\nJenny: "
 
     response = openai.Completion.create(
         engine="davinci",
