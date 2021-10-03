@@ -65,7 +65,7 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
     await bot.room_read_markers(room.room_id, event.event_id, event.event_id)
     await bot.room_typing(room.room_id, True, 10000)
 
-    prompt = f"Your name is {config.nick}. You are a cheerful robot in a room with strange people\n\n"
+    prompt = f"{config.prompt}\n\n"
     prompt += "\n".join(channel_histories[room.room_id])
     prompt += "\nJenny:"
 
