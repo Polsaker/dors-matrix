@@ -57,7 +57,8 @@ class HookMessage(RoomMessageFormatted):  # noqa
 
     @property
     def args(self) -> List[str]:
-        return list(filter(None, self.body.split(" ")[1:]))
+        cmdparts = self.body.replace(config.prefix, '', 1).lstrip(" *").strip().split()
+        return list(filter(None, cmdparts[1:]))
 
 
 class Jenny(AsyncClient):
@@ -231,7 +232,7 @@ class Jenny(AsyncClient):
 
         event = HookMessage.from_roomessage(dataclasses.asdict(event))
 
-        if event.body.strip().startswith(config.prefix):
+        if event.body.lstrip(" *").strip().startswith(config.prefix):
             try:
                 # if it's been six seconds since this person has made a command...
                 # And they made the last two commands...
@@ -246,7 +247,8 @@ class Jenny(AsyncClient):
                 self.lastheardfrom[source] = time.time()
                 self.sourcehistory.append(source)
 
-            command = event.body.replace(config.prefix, '', 1).strip().split()[0].lower()
+            command_parts = event.body.replace(config.prefix, '', 1).lstrip(" *").strip().split()
+            command = command_parts[0].lower()
 
             try:
                 pot = next((item for item in self.command_hooks if command in item['commands']))
