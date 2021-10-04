@@ -148,12 +148,6 @@ async def jackpot(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if await balance.get_balance(event.sender) < amount:
         return await bot.reply("Not enough balance!")
 
-    # Anti-sniping
-    if game_start_at.get(room.room_id) and len(game_players[room.room_id]) > 1:
-        time_left = game_start_at[room.room_id] - int(time.time())
-        if time_left <= 5:
-            return
-
     tag = await bot.source_tag(event.sender)
     prv_len = len(game_players[room.room_id])
 
