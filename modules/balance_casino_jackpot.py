@@ -118,9 +118,9 @@ async def expire_games(bot: Jenny):
                 del game_start_at[channel]
                 del game_started[channel]
                 del game_cap[channel]
-            elif ctime == (timestart - 30):
+            elif ctime == (timestart - 30) and len(game_players[channel]) > 1:
                 await bot.message(channel, "Jackpot game will begin in <b>30 seconds</b>", p_html=True)
-            elif ctime == (timestart - 5):
+            elif ctime == (timestart - 5) and len(game_players[channel]) > 1:
                 await bot.message(channel, "Jackpot game will begin in <b>5 seconds</b>", p_html=True)
 
 
