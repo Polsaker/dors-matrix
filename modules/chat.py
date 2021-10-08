@@ -14,17 +14,6 @@ openai.api_key = config.openai_api_key
 
 start_sequence = "\nJenny:"
 
-response = openai.Completion.create(
-  engine="davinci",
-  prompt="You're talking to Phuks, a chat group full of random people. Your job is to be of use.",
-  temperature=0.9,
-  max_tokens=150,
-  top_p=1,
-  frequency_penalty=0,
-  presence_penalty=0.6,
-  stop=["\n"]
-)
-
 mycb = {}
 
 nowords = ['reload', 'help', 'tell', 'ask', 'ping']
@@ -51,8 +40,12 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if event.body.startswith(config.nick):
         text = " ".join(text.split(" ")[1:])
 
-    dn = await bot.get_displayname(event.sender)
-    channel_histories[room.room_id].append(f"{dn.displayname}: {text}")
+    if event.sender == bot.user_id:
+        dn = "AI"
+    else:
+        dn = await bot.get_displayname(event.sender)
+        dn = dn.displayname
+    channel_histories[room.room_id].append(f"{dn}: {text}")
     if len(channel_histories[room.room_id]) > 15:
         channel_histories[room.room_id].pop(0)
 
@@ -70,7 +63,7 @@ async def send_chat_msg(bot: Jenny, room: MatrixRoom):
     await bot.room_typing(room.room_id, True, 10000)
     prompt = f"{config.prompt}\n\n"
     prompt += "\n".join(channel_histories[room.room_id])
-    prompt += "\nJenny: "
+    prompt += "\nAI: "
 
     response = openai.Completion.create(
         engine="davinci",
@@ -79,7 +72,7 @@ async def send_chat_msg(bot: Jenny, room: MatrixRoom):
         max_tokens=300,
         top_p=1,
         frequency_penalty=1,
-        presence_penalty=0.6,
+        presence_penalty=0.75,
         stop=["\n"]
     )
     print(prompt)
