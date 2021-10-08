@@ -59,7 +59,7 @@ async def send_chat_msg(bot: Jenny, room: MatrixRoom):
     await bot.room_typing(room.room_id, True, 10000)
     prompt = f"{config.prompt}\n\n"
     prompt += "\n".join(channel_histories[room.room_id])
-    prompt += "\nJenny: "
+    prompt += "\nJenny:"
 
     response = openai.Completion.create(
         engine="davinci",
