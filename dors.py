@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Optional, List, Coroutine
 
 from nio import (AsyncClient, InviteEvent, LoginResponse, MatrixRoom, RoomMessageText, AsyncClientConfig,
-                 RoomMessageFormatted)
+                 RoomMessageFormatted, RoomMessageNotice)
 
 import config
 
