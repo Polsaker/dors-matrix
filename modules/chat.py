@@ -76,7 +76,7 @@ async def send_chat_msg(bot: Jenny, room: MatrixRoom):
         engine="davinci",
         prompt=prompt,
         temperature=0.9,
-        max_tokens=150,
+        max_tokens=300,
         top_p=1,
         frequency_penalty=1,
         presence_penalty=0.6,
