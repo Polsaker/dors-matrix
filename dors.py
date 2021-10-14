@@ -228,9 +228,6 @@ class Jenny(AsyncClient):
 
         source = event.sender
 
-        if source == self.user_id:
-            return
-
         event = HookMessage.from_roomessage(dataclasses.asdict(event))
 
         if event.body.lstrip(" *").strip().startswith(config.prefix):
@@ -263,8 +260,11 @@ class Jenny(AsyncClient):
             except StopIteration:
                 pass
 
-            # Hooks
-            # Iterate over all the stuff handlers.
+        if source == self.user_id:
+            return
+
+        # Hooks
+        # Iterate over all the stuff handlers.
         for stuff in self.stuffHandlers:
             # try to find a match
             if stuff['regex'].match(event.body):
