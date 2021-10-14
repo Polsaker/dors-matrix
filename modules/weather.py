@@ -45,30 +45,30 @@ def speed_desc(speed):
     """Provide a more natural description of wind speed"""
     # taken from jennifer
 
-    if speed < 1:
+    if speed < 0.3:
         description = 'Calm'
-    elif speed < 4:
+    elif speed < 1.1:
         description = 'Light air'
-    elif speed < 7:
+    elif speed < 1.9:
         description = 'Light breeze'
-    elif speed < 11:
+    elif speed < 3:
         description = 'Gentle breeze'
-    elif speed < 16:
+    elif speed < 4.4:
         description = 'Moderate breeze'
-    elif speed < 22:
+    elif speed < 6.1:
         description = 'Fresh breeze'
-    elif speed < 28:
+    elif speed < 7.7:
         description = 'Strong breeze'
-    elif speed < 34:
+    elif speed < 9.4:
         description = 'Near gale'
-    elif speed < 41:
+    elif speed < 11.3:
         description = 'Gale'
-    elif speed < 48:
+    elif speed < 13.3:
         description = 'Strong gale'
-    elif speed < 56:
-        description = 'Storm'
-    elif speed < 64:
-        description = 'Violent storm'
+    elif speed < 15.5:
+        description = '<font color=\"yellow\">Storm</font>'
+    elif speed < 17.7:
+        description = '<font color=\"yellow\">Violent storm</font>'
     else:
         description = '\002\00305FUCKING HURRICANE\003\002'
 
@@ -231,7 +231,7 @@ def get_c(temp):
 
 
 def get_mph(speed):
-    return f"{round(speed / 1.609, 2)}"
+    return f"{round(speed * 2.237, 2)}"
 
 
 def get_conditions(data, is_night: bool, moon_phase: Optional[int] = None):
@@ -286,7 +286,7 @@ async def weather2(bot: Jenny, room: MatrixRoom, event: HookMessage):
     resp += f"<b>{curr}</b> - <b>{get_c(curr_weather['temp'])}</b> (<b>{get_f(curr_weather['temp'])}</b>)"
     resp += f" - Feels like <b>{get_c(curr_weather['feels_like'])}</b> (<b>{get_f(curr_weather['feels_like'])}</b>). "
     resp += f" Humidity: <b>{curr_weather['humidity']}</b>%, pressure: <b>{curr_weather['pressure']}</b>hPa.<br/>"
-    resp += f"Wind: <b>{curr_weather['wind_speed']}</b> km/h ({get_mph(curr_weather['wind_speed'])} mph) "
+    resp += f"Wind: <b>{curr_weather['wind_speed']}</b> m/s ({get_mph(curr_weather['wind_speed'])} mph) "
     resp += f"<b>{speed_desc(curr_weather['wind_speed'])}</b> ({wind_dir(curr_weather['wind_deg'])})."
     resp += "<br><br>Forecast:<ul>"
     resp += f"<li>{get_forecast(weather_data['daily'][0])}</li>"
