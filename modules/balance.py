@@ -150,7 +150,7 @@ async def __cmd_tip(bot: Jenny, room: MatrixRoom, event: HookMessage):
 
         if len(potential_users) > 1:
             # We will have to dissect the html thingy
-            poke_re = re.compile(r"\.tip .+? <a href=\"https://matrix.to/#/(.+)\">.|")
+            poke_re = re.compile(r"\.tip ?.+?<a href=\"https://matrix.to/#/(.+?)\">.*")
             if match := poke_re.match(event.formatted_body):
                 real_user = match.group(1)
             else:
@@ -167,6 +167,8 @@ async def __cmd_tip(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if await get_balance(event.sender) < amount:
         return await bot.reply("Not enough balance!")
 
+    if not event.sender or not real_user:
+        return await bot.reply("Internal error! Big fuckup!")
     await transfer(event.sender, real_user, amount)
 
     tag = await bot.source_tag(real_user)
