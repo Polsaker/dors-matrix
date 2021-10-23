@@ -27,46 +27,6 @@ resultsym = {'USD': '$', 'EUR': '€', 'GBP': '£', 'AUD': 'A$', 'CAD': 'C$',
              'BTC': '฿', 'LTC': 'Ł', 'DOGE': 'Ð', 'ETH': 'Ξ'}
 
 
-@command_hook(['fees'])
-async def bitfee(bot: Jenny, room: MatrixRoom, event: HookMessage):
-    txs = requests.get('https://blockchain.info/q/unconfirmedcount')
-    txs = str(txs.content).replace('b', '').replace('\'', '')
-
-    btc_fee = requests.get("https://bitcoiner.live/api/fees/estimates/latest").json()
-    btc_fee = btc_fee["estimates"]["30"]["total"]
-    message = f"Bitcoin (30 min): Legacy: $\002{round(btc_fee['p2pkh']['usd'], 2)}\002 " \
-              f"({btc_fee['p2pkh']['satoshi']} sat) | "
-    message += f"Segwit (P2SH): $\002{round(btc_fee['p2sh-p2wpkh']['usd'], 2)}\002 " \
-               f"({btc_fee['p2sh-p2wpkh']['satoshi']} sat) | "
-    message += f"Segwit (Native): $\002{round(btc_fee['p2wpkh']['usd'], 2)}\002 " \
-               f"({btc_fee['p2wpkh']['satoshi']} sat) | {txs} unconfirmed transactions.\n\n"
-
-    try:
-        try:
-            i = requests.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?slug=ethereum',
-                             headers={"X-CMC_PRO_API_KEY": config.coinmarketcap_apikey}).json()
-            info = i['data']
-            info = info[next(iter(info))]
-        except AttributeError:
-            return await bot.reply("Coin not found")
-        price_usd = float(info['quote']['USD']['price'])
-
-        eth_fee = requests.get(
-            f"https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={config.etherscan_apikey}").json()
-        eth_fee = eth_fee["result"]
-        gwei_gas = int(eth_fee['ProposeGasPrice'])
-        congestion = eth_fee["gasUsedRatio"].split(",")
-        congestion = [float(x) for x in congestion]
-        avg_congestion = round((sum(congestion) / len(congestion)) * 100, 2)
-        eth_gas = round(((gwei_gas * 21000) / 10 ** 9) * price_usd, 2)
-        erc20_gas = round(((gwei_gas * 50000) / 10 ** 9) * price_usd, 2)
-        message += f"\n\nEthereum: \002{gwei_gas}\002 Gwei - ETH: $\002{eth_gas}\002 | ERC20: $\002{erc20_gas}\002"
-        message += f" - Avg. network congestion: \002{avg_congestion}%\002"
-    except RuntimeError:
-        message += "\n\nEthereum: (error)"
-    await bot.message(room.room_id, message)
-
-
 @command_hook(['bit', 'bits'])
 async def bit(bot: Jenny, room: MatrixRoom, event: HookMessage):
     try:
