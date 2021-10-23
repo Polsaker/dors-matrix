@@ -37,7 +37,7 @@ async def bit(bot: Jenny, room: MatrixRoom, event: HookMessage):
         return await bot.say("Usage: .bit <bits>")
 
     bitcoin = bits / 1000000
-    bitprice = requests.get("https://blockchain.info/es/ticker").json()
+    bitprice = requests.get("https://blockchain.info/ticker").json()
 
     message = "\002{0}\002 bits => ฿\002{1}\002 => $\002{2}\002, €\002{3}\002, £\002{4}\002.".format(
         bits, bitcoin, round(bitprice['USD']['last'] * bitcoin, 2), round(bitprice['EUR']['last'] * bitcoin, 2),
