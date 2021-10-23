@@ -70,7 +70,7 @@ def speed_desc(speed):
     elif speed < 17.7:
         description = '<font color=\"yellow\">Violent storm</font>'
     else:
-        description = '\002\00305FUCKING HURRICANE\003\002'
+        description = '<font color=\"red\">05FUCKING HURRICANE</font>'
 
     return description
 
