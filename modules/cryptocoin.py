@@ -3,7 +3,6 @@ from nio import MatrixRoom
 from dors import command_hook, Jenny, HookMessage
 import config
 import requests
-import math
 
 coinmap = {'btc': 'bitcoin', 'ltc': 'litecoin', 'drk': 'darkcoin', 'doge': 'dogecoin',
            'eth': 'ethereum', 'myst': 'mysterium', 'nxt': 'nxt', 'ppc': 'peercoin',
@@ -20,7 +19,7 @@ coinmap = {'btc': 'bitcoin', 'ltc': 'litecoin', 'drk': 'darkcoin', 'doge': 'doge
            'cach': 'cachecoin', 'huc': 'huntercoin', 'grc': 'gridcoin', 'ttc': 'tittiecoin',
            'blk': 'blackcoin', 'bc': 'blackcoin', 'zeit': 'zeitcoin', 'pot': 'potcoin',
            'rby': 'rubycoin', 'omg': 'omisego', 'xmr': 'monero', 'dai': 'multi-collateral-dai',
-           'ada': 'cardano'}
+           'ada': 'cardano', 'paxg': 'pax-gold'}
 
 resultsym = {'USD': '$', 'EUR': '€', 'GBP': '£', 'AUD': 'A$', 'CAD': 'C$',
              'ARS': 'A$', 'NZD': '$', 'JPY': '¥', 'KPW': '₩', 'KRW': '₩', 'ILS': '₪',
@@ -165,7 +164,7 @@ async def coin_price(bot: Jenny, symbol, amount, tick=True):
 @command_hook(['coins'], help='.coins <convertTo:optional> -- get coin price and daily/weekly percent change.')
 async def coins(bot: Jenny, room: MatrixRoom, event: HookMessage):
     msg = ''
-    default_show = ['BTC', 'LTC', 'ETH', 'BCH', 'DOGE', 'XMR', 'ADA']  # show info for these ticker symbols
+    default_show = ['BTC', 'LTC', 'ETH', 'BCH', 'DOGE', 'XMR', 'ADA', 'PAXG']  # show info for these ticker symbols
     convert = 'USD'  # default fiat or crypto ticker symbol
     i = requests.get(
         'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?convert=' + convert + '&limit=250',
