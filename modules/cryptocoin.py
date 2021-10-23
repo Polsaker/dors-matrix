@@ -42,7 +42,7 @@ async def bit(bot: Jenny, room: MatrixRoom, event: HookMessage):
     message = "\002{0}\002 bits => ฿\002{1}\002 => $\002{2}\002, €\002{3}\002, £\002{4}\002.".format(
         bits, bitcoin, round(bitprice['USD']['last'] * bitcoin, 2), round(bitprice['EUR']['last'] * bitcoin, 2),
         round(bitprice['GBP']['last'] * bitcoin, 2))
-    await bot.message(room.room_id, await bot.source_tag(event.sender) + ": " + message)
+    await bot.message(room.room_id, await bot.source_tag(event.sender) + ": " + message, p_html=True)
 
 
 @command_hook(['bitcoin', 'btc'])
