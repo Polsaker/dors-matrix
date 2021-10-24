@@ -168,7 +168,7 @@ async def coins(bot: Jenny, room: MatrixRoom, event: HookMessage):
     convert = 'USD'  # default fiat or crypto ticker symbol
     i = requests.get(
         'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?convert=' + convert + '&limit=250',
-        headers={"X-CMC_PRO_API_KEY": "950e7d29-19f8-47eb-8395-a0c442298d59"})  # market cap sorted by top
+        headers={"X-CMC_PRO_API_KEY": config.coinmarketcap_apikey})  # market cap sorted by top
     if not i.ok:
         return await bot.say(f'Got error {i.status_code} from coinmarketcap. :(')
     i = i.json()['data']
