@@ -1,4 +1,8 @@
-from nio import MatrixRoom
+from io import BytesIO
+
+import aiofiles
+import aiohttp
+from nio import MatrixRoom, UploadResponse
 
 from dors import command_hook, Jenny, HookMessage
 import config
@@ -224,3 +228,66 @@ async def coins2(bot: Jenny, room: MatrixRoom, event: HookMessage):
             price = round(float(price * 1000), 2)
         msg += '\002{0}\002{1}: {2}{3} ● '.format(coin, volume, sym, price)
     await bot.say(msg[:-3])
+
+
+@command_hook(['tradeview', 'tv'], help='.tradeview <coin> - view tradeview data for a pair.')
+async def tradeview(bot: Jenny, room: MatrixRoom, event: HookMessage):
+    if not event.args:
+        return await bot.say("Usage: .tradeview <coin> (ie .tradeview BTC)")
+
+    symbol = event.args[0].upper()
+
+    width = 800
+    height = 400
+
+    if symbol not in ('DOGE', 'BTC', 'ETH', 'ADA', 'LTC'):
+        return await bot.say("Symbol not supported. Bother Polsaker to add it.")
+
+    await bot.room_typing(room.room_id, True, 10000)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://api.chart-img.com/v1/tradingview/advanced-chart", params={
+            "height": height,
+            "width": width,
+            "interval": "1h",
+            "symbol": f"{symbol}USD"
+        }) as resp:
+            buffer = BytesIO(await resp.read())
+
+    st_size = buffer.getbuffer().nbytes
+    buffer.seek(0)
+
+    async with aiofiles.open("tmp_qr.png", "r+b") as f:
+        resp, maybe_keys = await bot.upload(
+            buffer,  # noqa
+            content_type="image/png",
+            filename="doge_address.png",
+            filesize=st_size)
+    if isinstance(resp, UploadResponse):
+        print("Image was uploaded successfully to server. ")
+    else:
+        print(f"Failed to upload image. Failure response: {resp}")
+
+    content = {
+        "body": "doge_address.png",
+        "info": {
+            "size": st_size,
+            "mimetype": "image/png",
+            "thumbnail_info": None,  # TODO
+            "w": width,  # width in pixel
+            "h": height,  # height in pixel
+            "thumbnail_url": None,  # TODO
+        },
+        "msgtype": "m.image",
+        "url": resp.content_uri,
+    }
+
+    try:
+        await bot.room_send(
+            room.room_id,
+            message_type="m.room.message",
+            content=content
+        )
+        print("Image was sent successfully")
+    except Exception:  # noqa
+        print(f"Image send of file failed.")
