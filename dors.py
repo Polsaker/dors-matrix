@@ -338,7 +338,9 @@ class Jenny(AsyncClient):
 
     async def source_tag(self, source):
         displayname = await self.get_displayname(source)
-        return f'<a href="https://matrix.to/#/{source}">{displayname.displayname}</a>'
+        if getattr(displayname, "displayname", False):
+            return f'<a href="https://matrix.to/#/{source}">{displayname.displayname}</a>'
+        return f'<a href="https://matrix.to/#/{source}">{source}</a>'
 
     async def say(self, message):
         """ Dummy definition (wrapped) """
