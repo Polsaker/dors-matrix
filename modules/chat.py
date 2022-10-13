@@ -41,6 +41,8 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
     #     text = " ".join(text.split(" ")[1:])
 
     dn = await bot.get_displayname(event.sender)
+    if not getattr(dn, "displayname", False):
+        return
     channel_histories[room.room_id].append(f"{dn.displayname}: {text}")
     if len(channel_histories[room.room_id]) > 15:
         channel_histories[room.room_id].pop(0)
@@ -65,7 +67,7 @@ async def send_chat_msg(bot: Jenny, room: MatrixRoom):
         engine="davinci",
         prompt=prompt,
         temperature=0.9,
-        max_tokens=150,
+        max_tokens=200,
         top_p=1,
         frequency_penalty=0.1,
         presence_penalty=0.6,
