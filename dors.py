@@ -56,8 +56,23 @@ class HookMessage(RoomMessageFormatted):  # noqa
         return temp
 
     @property
+    def in_reply_to(self) -> Optional[str]:
+        return self.source.get('content', {}).get('m.relates_to', {}).get('m.in_reply_to')
+
+    @property
+    def sane_body(self) -> str:
+        """ Returns a body apt for parsing commands from"""
+        body = self.body
+        # Parse replies
+        if self.format == "org.matrix.custom.html" and self.in_reply_to:
+            body = body.split("\n\n", 1)[-1]
+
+        body = body.lstrip(" *").strip()
+        return body
+
+    @property
     def args(self) -> List[str]:
-        cmdparts = self.body.replace(config.prefix, '', 1).lstrip(" *").strip().split()
+        cmdparts = self.sane_body.split()
         return list(filter(None, cmdparts[1:]))
 
 
@@ -230,7 +245,7 @@ class Jenny(AsyncClient):
 
         event = HookMessage.from_roomessage(dataclasses.asdict(event))
 
-        if event.body.lstrip(" *").strip().startswith(config.prefix):
+        if event.sane_body.startswith(config.prefix):
             try:
                 # if it's been six seconds since this person has made a command...
                 # And they made the last two commands...
@@ -245,8 +260,8 @@ class Jenny(AsyncClient):
                 self.lastheardfrom[source] = time.time()
                 self.sourcehistory.append(source)
 
-            command_parts = event.body.replace(config.prefix, '', 1).lstrip(" *").strip().split()
-            command = command_parts[0].lower()
+            command_parts = event.sane_body.split()
+            command = command_parts[0].lower().replace(config.prefix, '', 1)
 
             try:
                 pot = next((item for item in self.command_hooks if command in item['commands']))

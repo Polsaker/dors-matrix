@@ -35,7 +35,7 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if bad_chans and room.room_id in bad_chans:
         return
 
-    text = event.body.strip()
+    text = event.sane_body.strip()
 
     # if event.body.startswith(config.nick):
     #     text = " ".join(text.split(" ")[1:])
@@ -45,8 +45,8 @@ async def random_chat(bot: Jenny, room: MatrixRoom, event: HookMessage):
     if len(channel_histories[room.room_id]) > 15:
         channel_histories[room.room_id].pop(0)
 
-    trigger = random.random() <= (1 / 2500.0) or config.nick.lower() in event.body.lower() or \
-              "jen" in event.body.lower()
+    trigger = random.random() <= (1 / 2500.0) or config.nick.lower() in event.sane_body.lower() or \
+              "jen" in event.sane_body.lower()
 
     if not trigger:
         return
