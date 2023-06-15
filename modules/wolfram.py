@@ -17,37 +17,43 @@ def fixaroo(m):
 @command_hook(['wolframalpha', 'wa'], help=".wa <input> -- sends input to wolframalpha and returns results")
 async def wolframalpha(bot: Jenny, room: MatrixRoom, event: HookMessage):
     await bot.room_typing(room.room_id, True, 10000)
+    qry = " ".join(event.args).strip()
+    if "weather" in qry:
+        return await bot.say("reeeeee")
     try:
-        res = client.query(" ".join(event.args), units='metric')
+        res = client.query(qry, units='metric')
     except:
         return await bot.say("Error while querying WolframAlpha")
 
-    try:
-        pods = [x for x in res]
-    except:
+
+    print(res)
+
+    if not res["@success"]:
+        return await bot.say("No fucking idea.")
+    await bot.room_typing(room.room_id, False)
+
+    pods = [x for x in res['pod'] if x['@id'] not in ('CurrentTimePod:TimeZoneData',)][0:2]
+    for pod in res['pod']:
+        print(pod)
+
+    interp = " ".join([x.text for x in pods if x['@title'] == "Input interpretation"])
+
+    if "convert" in interp or "forecast" in interp or "definition" in interp or "current time" in interp:
         return await bot.say("No fucking idea.")
 
-    txtpods = []
-    for i in range(0, len(pods)):
-        try:
-            if not pods[i].text or type(pods[i].text) is not str:
-                continue
-            txtpods.append(pods[i].text)
-        except:
-            pass
-
-    await bot.room_typing(room.room_id, False)
-    # txtpods = [x.text if x.text else "" for x in pods[:3]]
-    # prettifying
-    txtpods = [": ".join([l.strip() for l in x.split(" | ")]) for x in txtpods]
-    txtpods = ["; ".join([l.strip() for l in x.split("\n")]) for x in txtpods]
-
-    txtpods = list(filter(None, txtpods))
-    
-    resp = " | ".join(txtpods)
-    resp = resp.replace("  ", " ")
-    resp = unire.sub(fixaroo, resp)
-    if len(resp) > 400:
-        resp = resp[:400] + "…"
-    
-    await bot.say(resp)
+    if interp:
+        interp_sh = interp[0].upper() + interp.replace(" | ", ": ")[1:]
+        poddata = []
+        for pod in pods[1:2]:
+            txd = pod.text
+            if "\n" in txd:
+                txd = "<br/>&nbsp;&nbsp;" + txd.replace("\n", "<br/>&nbsp;&nbsp;").replace(" | ", ": ")
+            poddata.append(txd)
+        data = " | ".join([x.text.replace("\n", "<br />") for x in pods[1:2]])
+        resp = f"<b>{interp_sh}</b>: {' '.join(poddata)}"
+    else:
+        if res['@datatypes'] == "Math":
+            resp = " = ".join([x.text.replace("\n", " ") for x in pods[0:2]])
+        else:
+            resp = " | ".join([x.text.replace("\n", " ") for x in pods[0:2]])
+    return await bot.message(room.room_id, resp, p_html=True)
