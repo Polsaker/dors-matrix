@@ -50,16 +50,16 @@ TimeZones.update(TZ1)
 TimeZones.update(TZ3)
 
 
-@command_hook(['time', 't'], help=".time UTC")
+@command_hook(['time', 't', 'date'], help=".time UTC")
 async def f_time(bot: Jenny, room: MatrixRoom, event: HookMessage):
     """Returns the current time."""
-    tz = event.args[0] if event.args else 'GMT'
+    tz = event.args[0] if event.args else 'UTC'
 
     TZ = tz.upper()
     if len(tz) > 30:
         return
 
-    if (TZ == 'UTC') or (TZ == 'Z'):
+    if (TZ == 'Z'):
         msg = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
         await bot.say(msg)
     elif r_local.match(tz): # thanks to Mark Shoulsdon (clsn)
