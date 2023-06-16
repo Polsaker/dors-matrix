@@ -18,8 +18,6 @@ def fixaroo(m):
 async def wolframalpha(bot: Jenny, room: MatrixRoom, event: HookMessage):
     await bot.room_typing(room.room_id, True, 10000)
     qry = " ".join(event.args).strip()
-    if "weather" in qry:
-        return await bot.say("reeeeee")
     try:
         res = client.query(qry, units='metric')
     except:
@@ -37,9 +35,6 @@ async def wolframalpha(bot: Jenny, room: MatrixRoom, event: HookMessage):
         print(pod)
 
     interp = " ".join([x.text for x in pods if x['@title'] == "Input interpretation"])
-
-    if "convert" in interp or "forecast" in interp or "definition" in interp or "current time" in interp:
-        return await bot.say("No fucking idea.")
 
     if interp:
         interp_sh = interp[0].upper() + interp.replace(" | ", ": ")[1:]
